@@ -1,0 +1,4 @@
+interface:
+  display_name: "RalPlan"
+  short_description: "Clarify ambiguous tasks into approved plans"
+  default_prompt: "Use $ralplan to clarify this task and produce an approved Markdown plan."
