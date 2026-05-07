@@ -2,9 +2,16 @@
 
 [中文说明](README.zh-CN.md)
 
-Agent Forge is a workspace for crafting reusable agent workflow assets: skills, hooks, agent roles, templates, and workflow documentation.
+Agent Forge explores a lighter way to orchestrate agents. Instead of forcing every request through a heavy planning or delegation pipeline, it gives the user explicit controls for how much process a task should receive while still allowing the agent to make sensible default decisions.
 
-The project keeps each capability small, explicit, and verifiable. A workflow asset should have a clear entry point, a narrow responsibility boundary, and enough documentation for both human users and future agents to use it without hidden context.
+The goal is simple: small tasks should stay small, and complex tasks should have a clear path to deeper clarification, research, and read-only exploration when that extra structure is useful.
+
+The repository contains Codex-compatible workflow assets for turning ambiguous requests into approved Markdown execution plans, with the main orchestration choices exposed directly:
+
+- task scale
+- clarification depth
+- subagent usage
+- external research
 
 ## Quick Start
 
@@ -19,7 +26,7 @@ Current assets:
 
 | Asset | Type | Description |
 | --- | --- | --- |
-| [ralplan](skills/ralplan/SKILL.md) | Skill | Clarifies ambiguous tasks and produces an approved Markdown execution plan. |
+| [ralplan](skills/ralplan/SKILL.md) | Skill | Clarifies ambiguous tasks and produces an approved Markdown execution plan with explicit complexity controls. |
 
 ## Using RalPlan
 
@@ -37,13 +44,22 @@ RalPlan always follows the same flow:
 4. Draft the plan in the conversation.
 5. Write the final Markdown plan after user approval.
 
+Its control surface is intentionally small:
+
+- `--scale auto|tiny|small|medium|large`: controls how much planning surface the agent assumes.
+- `--depth auto|lite|standard|deep`: controls how much clarification the agent performs.
+- `--agents off|auto|on`: controls whether read-only subagent exploration is allowed.
+- `--research off|auto|on`: controls whether external research is allowed.
+
+This keeps lightweight tasks from being forced through a heavy process while still allowing deeper orchestration when the task warrants it.
+
 Read the complete guide in [docs/ralplan.md](docs/ralplan.md).
 
 ## Repository Layout
 
 ```text
 skills/
-  ralplan/          # First workflow skill in this repository
+  ralplan/          # RalPlan workflow skill
 docs/
   ralplan.md        # Human-facing guide for the ralplan skill
 ```

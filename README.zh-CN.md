@@ -2,9 +2,16 @@
 
 [English](README.md)
 
-Agent Forge 是一个用于打造可复用智能体工作流资产的项目，包括 skills、hooks、agent roles、模板和工作流文档。
+Agent Forge 探索一种更轻量的智能体编排方式。它不把所有请求都塞进重度规划或多代理流程，而是把“需要多少流程”这件事交给用户显式控制，同时保留智能体根据任务复杂度自主判断的能力。
 
-本项目强调小而清晰的能力模块。每个工作流资产都应该有明确入口、清晰职责边界，并提供足够文档，让人类用户和后续智能体都能在没有隐藏上下文的情况下使用。
+目标很直接：小任务保持小，大任务在确实需要时再进入更深入的澄清、研究和只读探索。
+
+仓库包含 Codex 兼容的工作流资产，用于把模糊请求转化为经过确认的 Markdown 执行计划，并把主要编排选择直接暴露出来：
+
+- 任务规模
+- 澄清深度
+- 子代理使用
+- 外部研究
 
 ## 快速上手
 
@@ -19,7 +26,7 @@ find skills -maxdepth 2 -type f
 
 | 资产 | 类型 | 说明 |
 | --- | --- | --- |
-| [ralplan](skills/ralplan/SKILL.md) | Skill | 澄清模糊任务，并在用户确认后产出 Markdown 执行计划。 |
+| [ralplan](skills/ralplan/SKILL.md) | Skill | 澄清模糊任务，并通过显式复杂度控制，在用户确认后产出 Markdown 执行计划。 |
 
 ## 使用 RalPlan
 
@@ -37,13 +44,22 @@ RalPlan 固定遵循同一条流程：
 4. 在会话中给出计划草案。
 5. 用户确认后写入最终 Markdown 计划。
 
+它的控制面刻意保持很小：
+
+- `--scale auto|tiny|small|medium|large`：控制智能体假定的规划规模。
+- `--depth auto|lite|standard|deep`：控制澄清访谈的深度。
+- `--agents off|auto|on`：控制是否允许只读子代理探索。
+- `--research off|auto|on`：控制是否允许外部研究。
+
+这样可以避免轻量任务被迫进入重流程，同时在任务确实需要时仍能启用更深入的编排。
+
 完整说明见 [docs/ralplan.zh-CN.md](docs/ralplan.zh-CN.md)。
 
 ## 仓库结构
 
 ```text
 skills/
-  ralplan/          # 当前仓库的第一个工作流 skill
+  ralplan/          # RalPlan 工作流 skill
 docs/
   ralplan.md        # RalPlan 英文说明
   ralplan.zh-CN.md  # RalPlan 中文说明
