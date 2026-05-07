@@ -6,12 +6,7 @@ Agent Forge explores a lighter way to orchestrate agents. Instead of forcing eve
 
 The goal is simple: small tasks should stay small, and complex tasks should have a clear path to deeper clarification, research, and read-only exploration when that extra structure is useful.
 
-The repository contains Codex-compatible workflow assets for turning ambiguous requests into approved Markdown execution plans, with the main orchestration choices exposed directly:
-
-- task scale
-- clarification depth
-- subagent usage
-- external research
+Agent Forge is packaged as a Codex plugin. Its manifest points Codex-compatible environments at the bundled workflow skills.
 
 ## Quick Start
 
@@ -19,13 +14,14 @@ From a local checkout, inspect the available assets:
 
 ```bash
 cd agent-forge
-find skills -maxdepth 2 -type f
+find .codex-plugin skills -maxdepth 3 -type f
 ```
 
 Current assets:
 
 | Asset | Type | Description |
 | --- | --- | --- |
+| [.codex-plugin/plugin.json](.codex-plugin/plugin.json) | Plugin manifest | Declares Agent Forge as a Codex plugin and points Codex at the bundled skills. |
 | [ralplan](skills/ralplan/SKILL.md) | Skill | Clarifies ambiguous tasks and produces an approved Markdown execution plan with explicit complexity controls. |
 
 ## Using RalPlan
@@ -58,6 +54,8 @@ Read the complete guide in [docs/ralplan.md](docs/ralplan.md).
 ## Repository Layout
 
 ```text
+.codex-plugin/
+  plugin.json      # Codex plugin manifest
 skills/
   ralplan/          # RalPlan workflow skill
 docs/

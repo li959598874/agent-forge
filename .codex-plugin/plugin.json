@@ -1,0 +1,39 @@
+{
+  "name": "agent-forge",
+  "version": "0.1.0",
+  "description": "Codex workflow plugin for turning ambiguous requests into approved Markdown execution plans.",
+  "author": {
+    "name": "liwb",
+    "email": "959598874+li959598874@users.noreply.github.com",
+    "url": "https://github.com/li959598874"
+  },
+  "homepage": "https://github.com/li959598874/agent-forge",
+  "repository": "https://github.com/li959598874/agent-forge",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "workflow",
+    "planning",
+    "agents",
+    "ralplan"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Forge",
+    "shortDescription": "Plan ambiguous Codex tasks with explicit complexity controls.",
+    "longDescription": "Agent Forge provides Codex-compatible workflow assets for turning ambiguous software or workflow requests into approved Markdown execution plans. Its current RalPlan skill exposes controls for task scale, clarification depth, read-only subagent exploration, and external research.",
+    "developerName": "liwb",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Planning"
+    ],
+    "websiteURL": "https://github.com/li959598874/agent-forge",
+    "defaultPrompt": [
+      "$ralplan --scale medium \"Plan this feature\"",
+      "$ralplan --depth deep \"Clarify this refactor\"",
+      "$ralplan --agents auto \"Create an execution plan\""
+    ],
+    "brandColor": "#2563EB"
+  }
+}

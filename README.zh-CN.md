@@ -6,12 +6,7 @@ Agent Forge 探索一种更轻量的智能体编排方式。它不把所有请�
 
 目标很直接：小任务保持小，大任务在确实需要时再进入更深入的澄清、研究和只读探索。
 
-仓库包含 Codex 兼容的工作流资产，用于把模糊请求转化为经过确认的 Markdown 执行计划，并把主要编排选择直接暴露出来：
-
-- 任务规模
-- 澄清深度
-- 子代理使用
-- 外部研究
+Agent Forge 已封装为 Codex 插件。它的 manifest 会把 Codex 兼容环境指向仓库内置的工作流 skills。
 
 ## 快速上手
 
@@ -19,13 +14,14 @@ Agent Forge 探索一种更轻量的智能体编排方式。它不把所有请�
 
 ```bash
 cd agent-forge
-find skills -maxdepth 2 -type f
+find .codex-plugin skills -maxdepth 3 -type f
 ```
 
 当前资产：
 
 | 资产 | 类型 | 说明 |
 | --- | --- | --- |
+| [.codex-plugin/plugin.json](.codex-plugin/plugin.json) | Plugin manifest | 声明 Agent Forge 是 Codex 插件，并指向仓库内置 skills。 |
 | [ralplan](skills/ralplan/SKILL.md) | Skill | 澄清模糊任务，并通过显式复杂度控制，在用户确认后产出 Markdown 执行计划。 |
 
 ## 使用 RalPlan
@@ -58,6 +54,8 @@ RalPlan 固定遵循同一条流程：
 ## 仓库结构
 
 ```text
+.codex-plugin/
+  plugin.json      # Codex 插件 manifest
 skills/
   ralplan/          # RalPlan 工作流 skill
 docs/
