@@ -6,8 +6,6 @@ Agent Forge explores a lighter way to orchestrate agents. Instead of forcing eve
 
 The goal is simple: small tasks should stay small, and complex tasks should have a clear path to deeper clarification, research, and read-only exploration when that extra structure is useful.
 
-Agent Forge is packaged as a Codex plugin. Its manifest points Codex-compatible environments at the bundled workflow skills.
-
 ## Quick Start
 
 From a local checkout, inspect the available assets:
