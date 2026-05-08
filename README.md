@@ -6,19 +6,42 @@ Agent Forge explores a lighter way to orchestrate agents. Instead of forcing eve
 
 The goal is simple: small tasks should stay small, and complex tasks should have a clear path to deeper clarification, research, and read-only exploration when that extra structure is useful.
 
+## Install
+
+Add this GitHub repository as a Codex plugin marketplace:
+
+```bash
+codex plugin marketplace add li959598874/agent-forge --ref main
+```
+
+Then open Codex and install Agent Forge from the plugin directory:
+
+```text
+/plugins
+```
+
+Select the `Agent Forge` marketplace, open the `agent-forge` plugin, and choose `Install plugin`.
+
+After a release tag exists, prefer installing the tag instead of `main`:
+
+```bash
+codex plugin marketplace add li959598874/agent-forge --ref v0.1.0
+```
+
 ## Quick Start
 
 From a local checkout, inspect the available assets:
 
 ```bash
 cd agent-forge
-find .codex-plugin skills -maxdepth 3 -type f
+find .agents .codex-plugin skills -maxdepth 4 -type f
 ```
 
 Current assets:
 
 | Asset | Type | Description |
 | --- | --- | --- |
+| [.agents/plugins/marketplace.json](.agents/plugins/marketplace.json) | Marketplace manifest | Lets Codex load this GitHub repository as a plugin marketplace. |
 | [.codex-plugin/plugin.json](.codex-plugin/plugin.json) | Plugin manifest | Declares Agent Forge as a Codex plugin and points Codex at the bundled skills. |
 | [ralplan](skills/ralplan/SKILL.md) | Skill | Clarifies ambiguous tasks and produces an approved Markdown execution plan with explicit complexity controls. |
 
@@ -52,6 +75,9 @@ Read the complete guide in [docs/ralplan.md](docs/ralplan.md).
 ## Repository Layout
 
 ```text
+.agents/
+  plugins/
+    marketplace.json # GitHub marketplace entry for Agent Forge
 .codex-plugin/
   plugin.json      # Codex plugin manifest
 skills/

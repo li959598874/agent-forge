@@ -6,19 +6,42 @@ Agent Forge 探索一种更轻量的智能体编排方式。它不把所有请�
 
 目标很直接：小任务保持小，大任务在确实需要时再进入更深入的澄清、研究和只读探索。
 
+## 安装
+
+将这个 GitHub 仓库添加为 Codex 插件 marketplace：
+
+```bash
+codex plugin marketplace add li959598874/agent-forge --ref main
+```
+
+然后打开 Codex，并从插件目录安装 Agent Forge：
+
+```text
+/plugins
+```
+
+选择 `Agent Forge` marketplace，打开 `agent-forge` 插件详情，然后选择 `Install plugin`。
+
+发布 release tag 之后，正式公开安装建议使用 tag，而不是直接安装 `main`：
+
+```bash
+codex plugin marketplace add li959598874/agent-forge --ref v0.1.0
+```
+
 ## 快速上手
 
 在本地仓库中查看当前可用资产：
 
 ```bash
 cd agent-forge
-find .codex-plugin skills -maxdepth 3 -type f
+find .agents .codex-plugin skills -maxdepth 4 -type f
 ```
 
 当前资产：
 
 | 资产 | 类型 | 说明 |
 | --- | --- | --- |
+| [.agents/plugins/marketplace.json](.agents/plugins/marketplace.json) | Marketplace manifest | 让 Codex 可以把这个 GitHub 仓库作为插件 marketplace 加载。 |
 | [.codex-plugin/plugin.json](.codex-plugin/plugin.json) | Plugin manifest | 声明 Agent Forge 是 Codex 插件，并指向仓库内置 skills。 |
 | [ralplan](skills/ralplan/SKILL.md) | Skill | 澄清模糊任务，并通过显式复杂度控制，在用户确认后产出 Markdown 执行计划。 |
 
@@ -52,6 +75,9 @@ RalPlan 固定遵循同一条流程：
 ## 仓库结构
 
 ```text
+.agents/
+  plugins/
+    marketplace.json # Agent Forge 的 GitHub marketplace 入口
 .codex-plugin/
   plugin.json      # Codex 插件 manifest
 skills/

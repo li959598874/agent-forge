@@ -1,0 +1,21 @@
+{
+  "name": "agent-forge",
+  "interface": {
+    "displayName": "Agent Forge"
+  },
+  "plugins": [
+    {
+      "name": "agent-forge",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/li959598874/agent-forge.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
