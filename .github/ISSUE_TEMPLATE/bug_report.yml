@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a problem with Agent Forge behavior, docs, or packaging.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a focused problem. Include enough context for maintainers to reproduce it.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Commands, prompt text, plugin install method, or file paths needed to reproduce.
+      placeholder: |
+        1. Install with ...
+        2. Run ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: input
+    id: codex
+    attributes:
+      label: Codex environment
+      description: Codex version or environment details, if known.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Logs, validation output, screenshots, or plan excerpts.
+      render: text

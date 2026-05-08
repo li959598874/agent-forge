@@ -1,7 +1,7 @@
 {
   "name": "agent-forge",
   "version": "0.1.0",
-  "description": "Codex workflow plugin for turning ambiguous requests into approved Markdown execution plans.",
+  "description": "Codex workflow plugin for adaptive, low-intrusion planning and agent orchestration.",
   "author": {
     "name": "liwb",
     "email": "959598874+li959598874@users.noreply.github.com",
@@ -9,7 +9,7 @@
   },
   "homepage": "https://github.com/li959598874/agent-forge",
   "repository": "https://github.com/li959598874/agent-forge",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "keywords": [
     "codex",
     "workflow",
@@ -20,9 +20,9 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Forge",
-    "shortDescription": "Plan ambiguous Codex tasks with explicit complexity controls.",
-    "longDescription": "Agent Forge provides Codex-compatible workflow assets for turning ambiguous software or workflow requests into approved Markdown execution plans. Its current RalPlan skill exposes controls for task scale, clarification depth, read-only subagent exploration, and external research.",
-    "developerName": "liwb",
+    "shortDescription": "Plan Codex work with explicit process controls.",
+    "longDescription": "Agent Forge provides Codex-compatible workflow assets for adaptive planning and lightweight agent orchestration. Its current RalPlan skill turns ambiguous software or workflow requests into approved local Markdown execution plans with controls for task scale, clarification depth, and research-backed read-only subagent exploration.",
+    "developerName": "Agent Forge maintainers",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
@@ -30,8 +30,9 @@
     ],
     "websiteURL": "https://github.com/li959598874/agent-forge",
     "defaultPrompt": [
+      "$ralplan --scale small --depth lite --agents off \"Plan this cleanup\"",
       "$ralplan --scale medium \"Plan this feature\"",
-      "$ralplan --depth deep \"Clarify this refactor\"",
+      "$ralplan --scale large --depth deep --agents on \"Clarify this migration\"",
       "$ralplan --agents auto \"Create an execution plan\""
     ],
     "brandColor": "#2563EB"

@@ -1,6 +1,8 @@
 # RalPlan
 
-RalPlan is a planning skill for turning ambiguous software or workflow requests into an approved Markdown execution plan. It is intentionally narrow: it clarifies, plans, and writes a plan file after approval. It does not implement code, perform final review, commit changes, or create parallel JSON handoff files.
+RalPlan is a planning skill for turning ambiguous software or workflow requests into an approved Markdown execution plan. It is intentionally narrow: it clarifies, plans, and writes one plan file after user approval. It does not implement code, perform final review, commit changes, or create parallel JSON handoff files.
+
+RalPlan is the first Agent Forge workflow primitive. It applies the project principle documented in [design-principles.md](design-principles.md): use only as much process as the task warrants.
 
 ## Skill Location
 
@@ -15,15 +17,13 @@ skills/ralplan/
 
 ## When To Use
 
-Use RalPlan when a task needs planning before implementation:
+Use RalPlan only when the user explicitly asks for planning:
 
-- The requirement is ambiguous or underspecified.
-- Scope boundaries, non-goals, or acceptance criteria need to be clarified.
-- The task may touch multiple files, modules, systems, or workflow phases.
-- The user wants a durable plan artifact for future execution.
 - The user invokes `$ralplan` directly.
+- The user clearly asks to create a plan before implementation.
+- The user clearly asks for a durable plan artifact for future execution.
 
-Do not use RalPlan when the user is asking for immediate implementation, a final code review, a commit, or a purely informational answer.
+Do not use RalPlan for general clarification, immediate implementation, a final code review, a commit, or a purely informational answer.
 
 ## Invocation
 
@@ -39,13 +39,21 @@ $ralplan [--scale auto|tiny|small|medium|large]
          "<task>"
 ```
 
-Example:
+Examples:
+
+```text
+$ralplan --scale small --depth lite --agents off "Plan a logging cleanup"
+```
 
 ```text
 $ralplan --scale medium --depth standard --agents auto --name auth-refactor "Plan the authentication refactor"
 ```
 
-Natural-language examples are also valid:
+```text
+$ralplan --scale large --depth deep --agents on "Plan the plugin release process"
+```
+
+Natural-language controls are valid:
 
 ```text
 $ralplan Keep this lightweight and do not use subagents. Plan how to clean up the logging module.
@@ -70,12 +78,12 @@ Normalized RalPlan options:
 - scale: medium (inferred from cross-module scope)
 - depth: standard (natural language requested a normal plan)
 - agents: auto (default)
-- research: off (no current external facts requested)
+- research: on (default)
 - dir: .agent-work (default)
 - name: auth-refactor (derived)
 ```
 
-Structured flags have the highest priority, followed by explicit natural language, then inferred intent, then defaults. If an inferred option materially affects the process and is uncertain, the agent should ask before proceeding.
+Structured flags have the highest priority, followed by explicit natural language, inferred intent, and defaults. If an inferred option materially affects the process and is uncertain, the agent should ask before proceeding.
 
 ## Options
 
@@ -100,21 +108,23 @@ Controls interview detail.
 
 ### `--agents`
 
-Controls optional read-only subagent exploration.
+Controls whether read-only subagent exploration is allowed.
 
 - `off`: do not use subagents.
-- `auto`: use subagents only when the task benefits from context isolation.
-- `on`: use subagents when the active environment supports them.
+- `auto`: let the agent decide from task facts; stay local when local grounding is enough.
+- `on`: use subagents as the preferred exploration path for broad or read-heavy work.
 
-Subagents are for read-heavy exploration only. RalPlan does not delegate write tasks.
+When enabled, RalPlan organizes read-only exploration around independent evidence lanes such as modules, repositories, architecture layers, source types, risks, or critic passes. With `on`, the main agent should fan out useful lanes before drafting and preserve its own context for synthesis. RalPlan does not delegate write tasks.
 
 ### `--research`
 
-Controls external research.
+Controls research-backed evidence lanes. Default: `on`.
 
 - `off`: do not browse or use external sources.
-- `auto`: research only when needed for correctness.
-- `on`: use external research, preferring official documentation and primary sources.
+- `auto`: let the agent decide whether source checks are needed.
+- `on`: keep source checks available, preferring official documentation and primary sources.
+
+Research usually runs inside subagent exploration. If subagents are unavailable, the main agent may perform the minimum required source checks and record sources in Evidence.
 
 ### `--dir`
 
@@ -130,7 +140,7 @@ Sets the plan slug. If omitted, RalPlan derives a lowercase hyphenated slug from
 
 ## Workflow
 
-RalPlan always follows the write flow:
+RalPlan always follows the approval-gated write flow:
 
 1. Normalize options and echo them in the conversation.
 2. Ground minimally by reading project instructions, top-level structure, manifests, test entry points, and directly relevant files.
@@ -171,11 +181,11 @@ Use subagents only when the active environment allows them and they materially h
 
 Default behavior:
 
-- `tiny` and `small`: no subagents.
-- `medium`: at most one read-only explorer.
-- `large`: consider repo exploration, official-doc research, and a critic pass.
+- `off`: no subagents.
+- `auto`: the agent decides from task evidence; `tiny` and `small` usually stay local, while broader work can split into evidence lanes.
+- `on`: broad or read-heavy discovery is subagent-first, split by module, subsystem, source type, risk area, official-doc research, or critic pass.
 
-Subagents should return concise facts, evidence, file paths, source links, risks, and confidence. The main agent owns synthesis and all user communication.
+Subagents should return concise facts, evidence, file paths, source links, risks, and confidence. The main agent preserves context quality, owns synthesis, and handles all user communication.
 
 ## Plan Artifact
 
@@ -203,25 +213,28 @@ If the target `plan.md` already exists, the agent must not overwrite it silently
 The final plan should follow `skills/ralplan/assets/plan-template.md` and include:
 
 1. Task
-2. Goals
-3. Non-Goals
-4. Evidence
-5. Decisions
-6. Assumptions
-7. Execution Slices
-8. Validation
-9. Risks And Rollback
-10. Open Questions
-11. Intent Drift Check
+2. Process Budget
+3. Goals
+4. Non-Goals
+5. Evidence
+6. Decisions
+7. Assumptions
+8. Execution Slices
+9. Validation
+10. Risks And Rollback
+11. Open Questions
+12. Intent Drift Check
 
 The Evidence section is important. It records local files read, commands run for discovery, official docs or primary sources used, and whether a statement is observed fact or inference. This replaces any separate machine-readable handoff.
 
 ## Development Notes
 
-The skill is validated with the system skill-creator validator:
+Validate repository and skill packaging with:
 
 ```bash
-python3 /home/liwb/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/ralplan
+python3 scripts/validate.py
 ```
+
+If you use an external Codex skill validator, run it according to that validator's own installation path.
 
 When changing RalPlan, keep `SKILL.md` concise. Put detailed workflow rules in `references/`, and keep user-facing documentation in this file.

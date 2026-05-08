@@ -4,6 +4,13 @@
 
 <One-paragraph summary of the requested work and the approved planning scope.>
 
+## Process Budget
+
+- Scale: `<auto|tiny|small|medium|large>` - <reason>
+- Depth: `<auto|lite|standard|deep>` - <reason>
+- Agents: `<off|auto|on>` - <reason>
+- Research: `<on|auto|off>` - <policy and reason>
+
 ## Goals
 
 - <Goal 1>

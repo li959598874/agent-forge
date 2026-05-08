@@ -26,16 +26,17 @@ Use `assets/plan-template.md` as the starting structure. Keep the final plan con
 Required sections:
 
 1. Task
-2. Goals
-3. Non-Goals
-4. Evidence
-5. Decisions
-6. Assumptions
-7. Execution Slices
-8. Validation
-9. Risks And Rollback
-10. Open Questions
-11. Intent Drift Check
+2. Process Budget
+3. Goals
+4. Non-Goals
+5. Evidence
+6. Decisions
+7. Assumptions
+8. Execution Slices
+9. Validation
+10. Risks And Rollback
+11. Open Questions
+12. Intent Drift Check
 
 ## Execution Slice Rules
 

@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a focused Agent Forge workflow or documentation improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What user workflow would this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest behavior change that would solve the problem.
+    validations:
+      required: true
+  - type: dropdown
+    id: process-budget
+    attributes:
+      label: Expected process budget
+      description: Which Agent Forge budget does this primarily affect?
+      options:
+        - tiny
+        - small
+        - medium
+        - large
+        - unclear
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Boundaries
+      description: What should this feature avoid doing?

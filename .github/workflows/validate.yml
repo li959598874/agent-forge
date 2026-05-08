@@ -1,0 +1,21 @@
+name: Validate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  repository:
+    name: Repository contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate repository
+        run: python3 scripts/validate.py
+
+      - name: Check whitespace
+        run: git diff --check

@@ -2,20 +2,21 @@
 
 ## Option Semantics
 
-- `--scale`: Controls change-surface assumptions and artifact richness.
-  - `auto`: Infer from evidence.
-  - `tiny`: Local, low-risk, easily reversible task.
-  - `small`: Narrow repo task with limited uncertainty.
-  - `medium`: Cross-file or cross-module planning with real ambiguity.
-  - `large`: Architecture, migration, multi-phase, or high-risk planning.
-- `--depth`: Controls interview detail.
-  - `lite`: Ask only blocking questions.
-  - `standard`: Ask enough to freeze scope and acceptance.
-  - `deep`: Probe goals, non-goals, alternatives, risks, rollout, and validation.
-- `--agents`: Controls optional read-only subagent exploration.
-- `--research`: Controls external research. If enabled, prefer official documentation and primary sources.
-- `--dir`: Target scratch directory for the final plan. Default `.agent-work`.
-- `--name`: Stable slug for the plan folder. If absent, derive a short lowercase hyphenated slug from the task.
+- `--scale`: controls change-surface assumptions and artifact richness.
+  - `auto`: infer from evidence.
+  - `tiny`: local, low-risk, easily reversible task.
+  - `small`: narrow repo task with limited uncertainty.
+  - `medium`: cross-file or cross-module planning with real ambiguity.
+  - `large`: architecture, migration, multi-phase, or high-risk planning.
+- `--depth`: controls interview detail.
+  - `auto`: infer from task complexity and requirement detail.
+  - `lite`: ask only blocking questions.
+  - `standard`: ask enough to freeze scope and acceptance.
+  - `deep`: probe goals, non-goals, alternatives, risks, rollout, and validation.
+- `--agents`: controls optional read-only subagent exploration.
+- `--research`: controls research-backed evidence lanes. Default `on`; prefer official documentation and primary sources.
+- `--dir`: target scratch directory for the final plan. Default `.agent-work`.
+- `--name`: stable slug for the plan folder. If absent, derive a short lowercase hyphenated slug from the task.
 
 ## Option Normalization
 
@@ -33,7 +34,7 @@ Normalized RalPlan options:
 - scale: medium (inferred from cross-module scope)
 - depth: standard (natural language requested a normal plan)
 - agents: auto (default)
-- research: off (no current external facts requested)
+- research: on (default)
 - dir: .agent-work (default)
 - name: auth-refactor (derived)
 ```
@@ -45,11 +46,23 @@ Natural-language examples:
 - "quick/lightweight/simple" -> prefer `scale tiny|small`, `depth lite|standard`.
 - "deep/thorough/architecture/migration" -> prefer `depth deep`; consider `scale medium|large`.
 - "no agents/no subagents/keep it local" -> `agents off`.
-- "parallel exploration/use subagents" -> `agents on` unless the active environment forbids it.
-- "check latest/current docs" -> `research on`.
+- "parallel exploration/use subagents" -> `agents on` unless the active environment forbids it; prefer broad read-only exploration for broad or read-heavy tasks.
+- "check latest/current docs" -> keep `research on`; consider `agents on` for broad research.
 - "do not browse/no external research" -> `research off`.
 
-RalPlan always follows the same write flow: produce a conversation draft, wait for user approval, then write the final Markdown plan. If the user asks to "just draft" or "do not write yet", treat that as a request to stop before the approval/write step for the current turn, not as a persistent mode option.
+RalPlan always follows the same approval-gated write flow: produce a conversation draft, wait for user approval, then write the final Markdown plan. If the user asks to "just draft" or "do not write yet", treat that as a request to stop before the approval/write step for the current turn, not as a persistent mode option.
+
+## Process Budget Rules
+
+The process budget is a ceiling, not a quota.
+
+- Never add interview rounds just because the task is labeled `large`.
+- In `agents auto`, use subagents only when task evidence shows useful independent exploration lanes.
+- In `agents on`, make subagent-backed exploration the default for broad or read-heavy work so the main agent can preserve context quality for orchestration and synthesis.
+- Organize subagent exploration around independent evidence lanes; avoid duplicate exploration unless the lanes intentionally check different evidence.
+- Escalate from `auto` only when evidence shows wider change surface, unresolved ambiguity, high failure cost, current external facts, or broad validation needs.
+- If the user explicitly sets `--agents off` or `--research off`, respect that unless continuing would be unsafe or impossible; in that case, pause and explain the blocker.
+- If the user explicitly asks for a durable local plan, do not stop at a chat-only plan unless they later revise that request.
 
 ## Complexity Classification
 
@@ -66,8 +79,8 @@ Use the highest meaningful signal:
 
 - `tiny`: all dimensions low. Do minimal grounding, ask 0-2 questions, no subagents.
 - `small`: one dimension moderate. Do short grounding, ask focused questions, no subagents by default.
-- `medium`: multiple moderate dimensions or one high dimension. Consider one read-only explorer.
-- `large`: architecture/migration/high-risk work. Consider multiple read-only exploration passes and a critic pass.
+- `medium`: multiple moderate dimensions or one high dimension. If subagents are enabled, split only the independent read-heavy lanes that evidence supports.
+- `large`: architecture, migration, or high-risk work. If subagents are enabled, split by module, subsystem, source type, risk area, critic pass, or source-check lane.
 
 Explicit user options override automatic classification. For example, `--scale tiny --depth deep` means a small surface with deeper clarification; `--scale large --agents off` means broad planning without subagent delegation.
 
@@ -80,7 +93,7 @@ Before interviewing, inspect only enough context to avoid asking discoverable qu
 - Existing planning or workflow conventions when obvious.
 - Files directly named by the user.
 
-For unstable or external facts, browse only when the user asks for current information or when high-stakes accuracy depends on current official sources.
+For unstable or external facts, include source checks when the fact affects the plan. Prefer official documentation and primary sources.
 
 ## Interview Rules
 
@@ -97,9 +110,9 @@ Keep question volume proportional to both scale and requirement detail.
 
 Assess requirement detail before asking:
 
-- `high detail`: The user already supplied goals, non-goals, constraints, acceptance, relevant files, and preferred tradeoffs. Ask only for contradictions or blocking gaps.
-- `medium detail`: The user supplied a clear goal and some constraints, but acceptance, risks, or boundaries are incomplete. Ask a focused batch.
-- `low detail`: The user supplied intent but not scope, success criteria, constraints, or authorization. Use a deeper interview, even for a small task.
+- `high detail`: the user already supplied goals, non-goals, constraints, acceptance, relevant files, and preferred tradeoffs. Ask only for contradictions or blocking gaps.
+- `medium detail`: the user supplied a clear goal and some constraints, but acceptance, risks, or boundaries are incomplete. Ask a focused batch.
+- `low detail`: the user supplied intent but not scope, success criteria, constraints, or authorization. Use a deeper interview, even for a small task.
 
 Question volume by scale is a ceiling, not a quota:
 
@@ -122,6 +135,7 @@ Prefer multiple-choice or short structured questions when the answer space is kn
 The conversation draft must include:
 
 - Task summary.
+- Process budget and why it is appropriate.
 - Goals and non-goals.
 - Evidence already gathered.
 - Key decisions and assumptions.
@@ -134,6 +148,12 @@ Do not write the plan file until the user confirms the draft.
 
 ## Subagent Use
 
+`--agents` controls exploration permission and delegation posture:
+
+- `off`: do not use subagents.
+- `auto`: let the main agent decide from task facts; stay local when local grounding is enough.
+- `on`: use subagents as the preferred exploration path for broad, read-heavy, or research-backed work, then synthesize in the main context.
+
 Use subagents for read-heavy work that would otherwise pollute the main context:
 
 - Repo fact finding.
@@ -141,6 +161,8 @@ Use subagents for read-heavy work that would otherwise pollute the main context:
 - Official documentation research.
 - Risk or plan critique.
 
+Design exploration lanes from the work shape. Good boundaries include modules, repositories, architecture layers, source families, independent risks, and critic passes. For `agents on`, fan out all useful independent lanes before drafting; for `agents auto`, use only the lanes whose value is clear from the task evidence.
+
 Give each subagent a bounded, self-contained prompt. Ask for evidence with file paths, commands, source links, and confidence level. Do not ask subagents to edit files for this skill.
 
-The main agent must synthesize the plan and own the approval conversation.
+The main agent must preserve context quality, synthesize the plan, and own the approval conversation.

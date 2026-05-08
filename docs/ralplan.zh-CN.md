@@ -2,7 +2,9 @@
 
 [English](ralplan.md)
 
-RalPlan 是一个规划类 skill，用于把模糊的软件或工作流请求转化为经过用户确认的 Markdown 执行计划。它的职责刻意保持狭窄：澄清需求、制定计划、在确认后写入计划文件。它不实现代码、不做最终 review、不提交 git，也不创建并行的 JSON handoff 文件。
+RalPlan 是一个规划类 skill，用于把模糊的软件或工作流请求转化为经过用户确认的 Markdown 执行计划。它的职责刻意保持狭窄：澄清需求、制定计划、在确认后写入一份计划文件。它不实现代码、不做最终 review、不提交 git，也不创建并行的 JSON handoff 文件。
+
+RalPlan 是 Agent Forge 的第一个工作流原语。它落实 [design-principles.zh-CN.md](design-principles.zh-CN.md) 中的项目原则：只使用任务真正需要的流程。
 
 ## Skill 位置
 
@@ -17,15 +19,13 @@ skills/ralplan/
 
 ## 适用场景
 
-当任务需要先规划再执行时，使用 RalPlan：
+只有用户明确要求规划时，才使用 RalPlan：
 
-- 需求模糊或信息不足。
-- 需要澄清范围边界、非目标或验收标准。
-- 任务可能涉及多个文件、模块、系统或工作阶段。
-- 用户希望得到可持久保存、后续可执行的计划文件。
 - 用户显式调用 `$ralplan`。
+- 用户明确要求在实现前制定计划。
+- 用户明确要求生成可持久保存、后续可执行的计划文件。
 
-当用户要求立即实现、最终代码 review、提交 commit 或只询问信息时，不应使用 RalPlan。
+当用户只是要求一般澄清、立即实现、最终代码 review、提交 commit 或只询问信息时，不应使用 RalPlan。
 
 ## 调用方式
 
@@ -44,10 +44,18 @@ $ralplan [--scale auto|tiny|small|medium|large]
 示例：
 
 ```text
+$ralplan --scale small --depth lite --agents off "Plan a logging cleanup"
+```
+
+```text
 $ralplan --scale medium --depth standard --agents auto --name auth-refactor "Plan the authentication refactor"
 ```
 
-自然语言也有效：
+```text
+$ralplan --scale large --depth deep --agents on "Plan the plugin release process"
+```
+
+自然语言控制也有效：
 
 ```text
 $ralplan 保持轻量，不要使用子代理。规划一下如何清理 logging 模块。
@@ -72,7 +80,7 @@ Normalized RalPlan options:
 - scale: medium (inferred from cross-module scope)
 - depth: standard (natural language requested a normal plan)
 - agents: auto (default)
-- research: off (no current external facts requested)
+- research: on (default)
 - dir: .agent-work (default)
 - name: auth-refactor (derived)
 ```
@@ -105,18 +113,20 @@ Normalized RalPlan options:
 控制是否允许只读子代理探索。
 
 - `off`：不使用子代理。
-- `auto`：只有任务确实需要上下文隔离时才使用。
-- `on`：如果当前环境支持，则使用子代理。
+- `auto`：由 agent 根据任务事实自主判断；本地 grounding 足够时保持本地处理。
+- `on`：对宽范围或读密集工作，优先使用子代理探索。
 
-子代理只用于读密集探索。RalPlan 不把写入任务委派给子代理。
+启用后，RalPlan 围绕独立证据链路组织只读探索，例如模块、仓库、架构层、来源类型、风险或 critic pass。使用 `on` 时，主代理应在草案前展开有价值的探索链路，并保留自身上下文用于综合。RalPlan 不把写入任务委派给子代理。
 
 ### `--research`
 
-控制外部研究。
+控制带研究支撑的证据链路。默认值：`on`。
 
 - `off`：不浏览、不使用外部来源。
-- `auto`：只有正确性需要时才研究。
-- `on`：使用外部研究，优先官方文档和一手来源。
+- `auto`：由 agent 判断是否需要来源核验。
+- `on`：保持来源核验可用，优先官方文档和一手来源。
+
+Research 通常在子代理探索中执行。如果当前环境无法使用子代理，主代理可以执行最小必要来源核验，并在 Evidence 中记录来源。
 
 ### `--dir`
 
@@ -132,7 +142,7 @@ Normalized RalPlan options:
 
 ## 工作流
 
-RalPlan 固定遵循 write 流程：
+RalPlan 固定遵循带确认门的写入流程：
 
 1. 归一化参数，并在会话中回显。
 2. 最小 grounding：读取项目说明、顶层结构、manifest、测试入口和直接相关文件。
@@ -173,11 +183,11 @@ RalPlan 固定遵循 write 流程：
 
 默认行为：
 
-- `tiny` 和 `small`：不使用子代理。
-- `medium`：最多一个只读 explorer。
-- `large`：可考虑 repo exploration、official-doc research 和 critic pass。
+- `off`：不使用子代理。
+- `auto`：由 agent 根据任务证据判断；`tiny` 和 `small` 通常保持本地处理，更宽的工作可拆分为证据链路。
+- `on`：宽范围或读密集发现任务优先使用子代理，并按模块、子系统、来源类型、风险区域、官方文档研究或 critic pass 拆分。
 
-子代理应返回简洁事实、证据、文件路径、来源链接、风险和置信度。主代理负责综合计划和所有用户沟通。
+子代理应返回简洁事实、证据、文件路径、来源链接、风险和置信度。主代理保护上下文质量，负责综合计划和所有用户沟通。
 
 ## 计划产物
 
@@ -205,25 +215,28 @@ RalPlan 不创建：
 最终计划应遵循 `skills/ralplan/assets/plan-template.md`，并包含：
 
 1. Task
-2. Goals
-3. Non-Goals
-4. Evidence
-5. Decisions
-6. Assumptions
-7. Execution Slices
-8. Validation
-9. Risks And Rollback
-10. Open Questions
-11. Intent Drift Check
+2. Process Budget
+3. Goals
+4. Non-Goals
+5. Evidence
+6. Decisions
+7. Assumptions
+8. Execution Slices
+9. Validation
+10. Risks And Rollback
+11. Open Questions
+12. Intent Drift Check
 
 Evidence 章节很重要。它记录本轮读取过的本地文件、用于发现的命令、使用过的官方文档或一手来源，以及某条判断是观察事实还是推断。它替代任何单独的机器可读 handoff。
 
 ## 开发说明
 
-使用系统 `skill-creator` 校验器验证该 skill：
+使用以下命令校验仓库和 skill 包装：
 
 ```bash
-python3 /home/liwb/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/ralplan
+python3 scripts/validate.py
 ```
+
+如果你使用外部 Codex skill 校验器，请按该校验器自己的安装路径运行。
 
 修改 RalPlan 时，保持 `SKILL.md` 简洁。详细流程规则放到 `references/`，面向用户的说明放在本文档中。
