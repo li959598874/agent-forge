@@ -15,13 +15,13 @@
     "workflow",
     "planning",
     "agents",
-    "ralplan"
+    "plan"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Forge",
     "shortDescription": "Plan Codex work with explicit process controls.",
-    "longDescription": "Agent Forge provides Codex-compatible workflow assets for adaptive planning and lightweight agent orchestration. Its current RalPlan skill turns ambiguous software or workflow requests into approved local Markdown execution plans with controls for task scale, clarification depth, and research-backed read-only subagent exploration.",
+    "longDescription": "Agent Forge provides Codex-compatible workflow assets for adaptive planning and lightweight agent orchestration. Its current Plan skill turns ambiguous software or workflow requests into draft-to-approved local Markdown execution plans with preset controls for exploration breadth, clarification depth, and read-only subagent use.",
     "developerName": "Agent Forge maintainers",
     "category": "Productivity",
     "capabilities": [
@@ -30,10 +30,10 @@
     ],
     "websiteURL": "https://github.com/li959598874/agent-forge",
     "defaultPrompt": [
-      "$ralplan --scale small --depth lite --agents off \"Plan this cleanup\"",
-      "$ralplan --scale medium \"Plan this feature\"",
-      "$ralplan --scale large --depth deep --agents on \"Clarify this migration\"",
-      "$ralplan --agents auto \"Create an execution plan\""
+      "$plan --low \"Plan this cleanup\"",
+      "$plan --medium \"Plan this feature\"",
+      "$plan --high \"Clarify this migration\"",
+      "$plan --max \"Create a deeply researched execution plan\""
     ],
     "brandColor": "#2563EB"
   }

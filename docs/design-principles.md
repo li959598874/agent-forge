@@ -18,10 +18,10 @@ The project optimizes for:
 
 | Budget | Typical use | Default behavior |
 | --- | --- | --- |
-| `tiny` | One local, low-risk change | Minimal context and no subagents. |
-| `small` | Narrow task with limited ambiguity | Short grounding and only blocking questions. |
-| `medium` | Cross-file or cross-module planning | Standard clarification and optional fact-based read-only exploration. |
-| `large` | Architecture, migration, or high-risk work | Deeper interview, evidence capture, staged plan, and optional critic pass. |
+| `low` | One local, low-risk change | Minimal context and no subagents. |
+| `medium` | Narrow or normal planning with limited ambiguity | Short grounding and enough questions to freeze scope. |
+| `high` | Cross-file, architecture, migration, or higher-risk planning | Deeper interview, evidence capture, and optional read-only lanes. |
+| `max` | Broad, high-stakes, or research-heavy planning | Wide exploration, staged plan, and optional critic pass. |
 
 The model is not a bureaucracy. It is a ceiling for process. A high-detail large task can move quickly, and a small low-detail task can still require one or two boundary questions.
 
@@ -29,7 +29,7 @@ The model is not a bureaucracy. It is a ceiling for process. A high-detail large
 
 Agent Forge assets should be composable with a user's existing setup:
 
-- Prefer explicit invocation, such as `$ralplan`, over implicit interception.
+- Prefer explicit invocation, such as `$plan`, over implicit interception.
 - Keep persistent outputs in predictable local paths.
 - Avoid hidden machine-only state when a Markdown artifact can carry the same context.
 - When subagents are explicitly enabled, use them broadly for read-heavy exploration and keep the main agent focused on orchestration and synthesis.
@@ -38,7 +38,7 @@ Agent Forge assets should be composable with a user's existing setup:
 
 ## Current Implementation
 
-RalPlan implements the first slice of this model: planning. It clarifies ambiguous work, drafts a plan in the conversation, waits for approval, and writes one Markdown plan file. It intentionally does not implement the plan, commit changes, or perform final code review.
+Plan implements the first slice of this model: planning. It clarifies ambiguous work, writes a draft, waits for approval, and upgrades one Markdown plan file. It intentionally does not implement the plan, commit changes, or perform final code review.
 
 ## Roadmap
 

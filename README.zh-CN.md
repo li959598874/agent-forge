@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-Agent Forge 是一个面向 Codex 的轻量智能体工作流编排插件。它把“任务需要多少流程”的控制权交给用户显式配置，同时在用户使用 `auto` 时，允许 Codex 根据任务证据做保守的默认判断。
+Agent Forge 是一个面向 Codex 的轻量智能体工作流编排插件。它把“任务需要多少流程”的控制权交给用户显式配置，同时在用户不指定流程预算时，允许 Codex 根据任务证据做保守的默认判断。
 
 核心规则很简单：小任务保持小；复杂工作在确实需要时，再进入更深入的澄清、带研究支撑的只读探索和可持久保存的本地计划。
 
@@ -12,8 +12,8 @@ Agent Forge 是一个面向 Codex 的轻量智能体工作流编排插件。它�
 
 Agent Forge 围绕三个约束构建：
 
-- **显式流程预算**：用户可以控制任务规模、澄清深度、子代理使用和带研究支撑的探索。
-- **自适应默认值**：当控制项为 `auto` 时，只有任务证据确实需要，agent 才升级流程。
+- **显式流程预算**：用户可以通过规划预设控制探索范围、澄清深度、子代理使用和带研究支撑的探索。
+- **自适应默认值**：当用户不指定预设时，只有任务证据确实需要，agent 才升级流程。
 - **低侵入性**：插件只提供 skills 和文档，不改用户 hook、全局配置或无关工具。
 
 ## 当前状态
@@ -23,9 +23,9 @@ Agent Forge 围绕三个约束构建：
 | 资产 | 作用 |
 | --- | --- |
 | `agent-forge` plugin | Agent Forge 工作流资产的 Codex 插件封装。 |
-| `$ralplan` skill | 澄清模糊任务，并写入经过用户确认的 Markdown 执行计划。 |
+| `$plan` skill | 澄清模糊任务，写入草案，并在确认后升级为 Markdown 执行计划。 |
 
-RalPlan 是第一个工作流原语。后续新增资产应遵循同一合同：显式控制、默认低仪式感、需要持久化时写入本地产物，并且不在请求范围外制造惊喜变更。
+Plan 是第一个工作流原语。后续新增资产应遵循同一合同：显式控制、默认低仪式感、需要持久化时写入本地产物，并且不在请求范围外制造惊喜变更。
 
 ## 安装
 
@@ -51,37 +51,37 @@ codex plugin marketplace add li959598874/agent-forge --ref <release-tag>
 
 ## 快速上手
 
-在兼容 Codex skill 的环境中显式调用 RalPlan：
+在兼容 Codex skill 的环境中显式调用 Plan：
 
 ```text
-$ralplan --scale medium --depth standard --agents auto --name auth-refactor "Plan the authentication refactor"
+$plan --medium "Plan the authentication refactor"
 ```
 
 轻量任务可以降低流程预算：
 
 ```text
-$ralplan --scale small --depth lite --agents off "Plan the logging cleanup"
+$plan --low "Plan the logging cleanup"
 ```
 
 或：
 
 ```text
-$ralplan 保持 logging cleanup 轻量，不使用子代理。
+$plan 保持 logging cleanup 轻量，不使用子代理。
 ```
 
 架构或迁移类任务可以启用更深澄清和官方来源研究：
 
 ```text
-$ralplan --scale large --depth deep --agents on "Plan the plugin release process"
+$plan --high "Plan the plugin release process"
 ```
 
 或：
 
 ```text
-$ralplan 为 plugin release process 制定一份深入计划，并使用子代理做宽范围探索。
+$plan 为 plugin release process 制定一份深入计划，并使用子代理做宽范围探索。
 ```
 
-RalPlan 只会在用户确认后写入最终计划：
+Plan 会先写入草案，再在用户确认后升级同一份文件：
 
 ```text
 .agent-work/plans/<slug>/plan.md
@@ -89,16 +89,14 @@ RalPlan 只会在用户确认后写入最终计划：
 
 ## 控制项
 
-| 参数 | 取值 | 作用 |
+| 参数 | 缩写 | 作用 |
 | --- | --- | --- |
-| `--scale` | `auto`, `tiny`, `small`, `medium`, `large` | 设置预期规划面和产物完整度。 |
-| `--depth` | `auto`, `lite`, `standard`, `deep` | 设置澄清访谈深度。 |
-| `--agents` | `off`, `auto`, `on` | 控制是否允许只读子代理探索。 |
-| `--research` | `off`, `auto`, `on` | 控制带研究支撑的证据链路。默认值：`auto`。 |
-| `--dir` | 路径 | 设置计划输出根目录。默认值：`.agent-work`。 |
-| `--name` | slug | 设置计划目录名。 |
+| `--low` | `-l` | 最少本地 grounding，默认不使用子代理，只问阻塞问题。 |
+| `--medium` | `-m` | 面向普通 feature、cleanup 或跨文件工作的标准规划。 |
+| `--high` | `-h` | 更深探索、分阶段澄清，并在有价值时使用只读子代理。 |
+| `--max` | `-x` | 宽范围探索，可用时使用多智能体 research/critic lanes，并进行深度确认。 |
 
-完整 RalPlan 说明见 [docs/ralplan.zh-CN.md](docs/ralplan.zh-CN.md)。设计原则见 [docs/design-principles.zh-CN.md](docs/design-principles.zh-CN.md)。
+完整 Plan 说明见 [docs/plan.zh-CN.md](docs/plan.zh-CN.md)。设计原则见 [docs/design-principles.zh-CN.md](docs/design-principles.zh-CN.md)。
 
 ## 仓库结构
 
@@ -114,12 +112,12 @@ RalPlan 只会在用户确认后写入最终计划：
 docs/
   design-principles.md      # 工作流理念和防漂移约束
   design-principles.zh-CN.md
-  ralplan.md                # RalPlan 英文说明
-  ralplan.zh-CN.md          # RalPlan 中文说明
+  plan.md                   # Plan 英文说明
+  plan.zh-CN.md             # Plan 中文说明
 scripts/
   validate.py               # 仓库本地校验
 skills/
-  ralplan/                  # RalPlan 工作流 skill
+  plan/                     # Plan 工作流 skill
 ```
 
 ## 开发

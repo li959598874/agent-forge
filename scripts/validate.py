@@ -24,7 +24,7 @@ MACHINE_PATH_PATTERNS = [
     re.compile(r"[A-Za-z]:\\"),
     re.compile(re.escape(SYSTEM_SKILL_PATH)),
 ]
-IGNORED_TEXT_PARTS = {".git", ".agent-work", ".codex", "__pycache__"}
+IGNORED_TEXT_PARTS = {".git", ".agent-work", ".codex", ".venv", "__pycache__"}
 
 
 def rel(path: Path) -> str:
@@ -74,14 +74,11 @@ def check_required_files() -> None:
         ".github/workflows/validate.yml",
         "docs/design-principles.md",
         "docs/design-principles.zh-CN.md",
-        "docs/ralplan.md",
-        "docs/ralplan.zh-CN.md",
+        "docs/plan.md",
+        "docs/plan.zh-CN.md",
         "scripts/validate.py",
-        "skills/ralplan/SKILL.md",
-        "skills/ralplan/agents/openai.yaml",
-        "skills/ralplan/assets/plan-template.md",
-        "skills/ralplan/references/workflow.md",
-        "skills/ralplan/references/plan-markdown.md",
+        "skills/plan/SKILL.md",
+        "skills/plan/agents/openai.yaml",
     ]
     for path in required:
         require_file(path)
@@ -102,8 +99,8 @@ def check_manifests() -> None:
         if not repository.startswith("https://github.com/"):
             ERRORS.append(".codex-plugin/plugin.json repository should be a GitHub HTTPS URL")
         prompts = plugin.get("interface", {}).get("defaultPrompt", [])
-        if not any("--scale small" in prompt for prompt in prompts):
-            ERRORS.append("plugin default prompts should include a lightweight RalPlan example")
+        if not any("$plan --low" in prompt for prompt in prompts):
+            ERRORS.append("plugin default prompts should include a low-preset Plan example")
 
     marketplace = load_json(".agents/plugins/marketplace.json")
     plugins = marketplace.get("plugins", []) if marketplace else []
@@ -131,45 +128,53 @@ def check_manifests() -> None:
 
 
 def check_skill_contract() -> None:
-    skill = read_text("skills/ralplan/SKILL.md")
+    skill = read_text("skills/plan/SKILL.md")
     if not skill.startswith("---\n"):
-        ERRORS.append("skills/ralplan/SKILL.md must start with YAML frontmatter")
+        ERRORS.append("skills/plan/SKILL.md must start with YAML frontmatter")
     else:
         parts = skill.split("---", 2)
         frontmatter = parts[1] if len(parts) > 2 else ""
-        for field in ("name: ralplan", "description:"):
+        for field in ("name: plan", "description:"):
             if field not in frontmatter:
-                ERRORS.append(f"skills/ralplan/SKILL.md missing frontmatter field {field}")
+                ERRORS.append(f"skills/plan/SKILL.md missing frontmatter field {field}")
         if "approved local Markdown execution plan" not in frontmatter:
-            ERRORS.append("RalPlan description should mention the local Markdown plan artifact")
-    if "Missing options are `auto`, except `dir`, which defaults to `.agent-work`" not in skill:
-        ERRORS.append("RalPlan skill should declare research default auto")
-    if "source-checking evidence lanes" not in skill:
-        ERRORS.append("RalPlan skill should describe research as source-checking evidence lanes")
+            ERRORS.append("Plan description should mention the local Markdown plan artifact")
+    if "$plan [--low|-l|--medium|-m|--high|-h|--max|-x]" not in skill:
+        ERRORS.append("Plan skill should declare the preset flag syntax")
+    if "Status: Draft" not in skill or "Status: Execution Plan" not in skill:
+        ERRORS.append("Plan skill should describe the two-stage draft-to-plan flow")
+    required_skill_markers = [
+        "## Mode Contract",
+        "## Subagent Orchestration",
+        "## Execution Vs Mutation",
+        "## Phase 1 - Ground In The Environment",
+        "## Phase 2 - Clarify Intent",
+        "## Phase 3 - Draft Then Execution Plan",
+        "Echo the selected preset in the conversation",
+        "do not add a `Preset:` field to the artifact",
+        "read-only planning lanes",
+        "critic or risk lane",
+        "User-provided answer",
+        ".agent-work/plans/<slug>/plan.md",
+        "## Draft Requirements",
+        "## Execution Plan Requirements",
+        "Intent drift check",
+        "decision-complete",
+    ]
+    for marker in required_skill_markers:
+        if marker not in skill:
+            ERRORS.append(f"Plan skill missing single-file prompt marker: {marker}")
 
-    openai_yaml = read_text("skills/ralplan/agents/openai.yaml")
+    plan_dir = ROOT / "skills" / "plan"
+    for folder in ("assets", "references"):
+        target = plan_dir / folder
+        if target.exists() and any(target.iterdir()):
+            ERRORS.append(f"Plan prompt should not keep extra files under skills/plan/{folder}")
+
+    openai_yaml = read_text("skills/plan/agents/openai.yaml")
     for expected in ("display_name:", "short_description:", "default_prompt:"):
         if expected not in openai_yaml:
-            ERRORS.append(f"skills/ralplan/agents/openai.yaml missing {expected}")
-
-    template = read_text("skills/ralplan/assets/plan-template.md")
-    required_sections = [
-        "## Task",
-        "## Process Budget",
-        "## Goals",
-        "## Non-Goals",
-        "## Evidence",
-        "## Decisions",
-        "## Assumptions",
-        "## Execution Slices",
-        "## Validation",
-        "## Risks And Rollback",
-        "## Open Questions",
-        "## Intent Drift Check",
-    ]
-    for heading in required_sections:
-        if heading not in template:
-            ERRORS.append(f"plan template missing section: {heading}")
+            ERRORS.append(f"skills/plan/agents/openai.yaml missing {expected}")
 
 
 def check_docs() -> None:
@@ -186,7 +191,7 @@ def check_docs() -> None:
     readme = read_text("README.md")
     readme_zh = read_text("README.zh-CN.md")
     for text, path in ((readme, "README.md"), (readme_zh, "README.zh-CN.md")):
-        for token in ("$ralplan", "docs/ralplan", "docs/design-principles", "CONTRIBUTING.md", "LICENSE"):
+        for token in ("$plan", "docs/plan", "docs/design-principles", "CONTRIBUTING.md", "LICENSE"):
             if token not in text:
                 ERRORS.append(f"{path} missing expected reference: {token}")
         if "--ref v0.1.0" in text:

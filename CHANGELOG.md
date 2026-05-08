@@ -8,4 +8,4 @@ This project follows human-readable release notes. Version tags should be added 
 
 - Reframe Agent Forge around explicit process budgets, adaptive defaults, and low-intrusion workflow assets.
 - Add open-source project health files, validation tooling, and GitHub issue and pull request templates.
-- Update RalPlan docs and skill contract to include process budget in final plan artifacts.
+- Rename the planning skill to Plan and update the contract around preset process budgets and draft-to-plan artifacts.

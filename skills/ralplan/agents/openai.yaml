@@ -1,4 +1,0 @@
-interface:
-  display_name: "RalPlan"
-  short_description: "Plan Codex tasks with explicit process controls"
-  default_prompt: "Use $ralplan to clarify this task, set an appropriate process budget, and produce an approved Markdown plan."

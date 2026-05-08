@@ -2,7 +2,7 @@
 
 [中文说明](README.zh-CN.md)
 
-Agent Forge is a Codex-first workflow plugin for adaptive agent orchestration. It gives users explicit control over how much process a task receives, while still allowing Codex to make conservative default decisions when the user leaves the process budget on `auto`.
+Agent Forge is a Codex-first workflow plugin for adaptive agent orchestration. It gives users explicit control over how much process a task receives, while still allowing Codex to make conservative default decisions when the user leaves the process budget implicit.
 
 The guiding rule is simple: small tasks should stay small; complex work should have a clear path into deeper clarification, research-backed read-only exploration, and durable local planning.
 
@@ -12,8 +12,8 @@ Existing agent orchestration workflows can be useful, but they often force every
 
 Agent Forge is built around three constraints:
 
-- **Explicit process budget**: users can control scale, clarification depth, subagent use, and research-backed exploration.
-- **Adaptive defaults**: when controls are left on `auto`, the agent escalates process only when task evidence justifies it.
+- **Explicit process budget**: users can choose a planning preset that controls exploration, clarification depth, subagent use, and research-backed investigation.
+- **Adaptive defaults**: when no preset is provided, the agent escalates process only when task evidence justifies it.
 - **Low intrusion**: the plugin ships skills and documentation without changing user hooks, global config, or unrelated tools.
 
 ## Current Status
@@ -23,9 +23,9 @@ This repository currently publishes one plugin and one skill:
 | Asset | Purpose |
 | --- | --- |
 | `agent-forge` plugin | Codex plugin wrapper for Agent Forge workflow assets. |
-| `$ralplan` skill | Clarifies ambiguous tasks and writes an approved Markdown execution plan. |
+| `$plan` skill | Clarifies ambiguous tasks, writes a draft, and upgrades it to an approved Markdown execution plan. |
 
-RalPlan is the first workflow primitive. Future workflow assets should follow the same contract: explicit controls, minimal default ceremony, local artifacts when persistence matters, and no surprise changes outside the requested scope.
+Plan is the first workflow primitive. Future workflow assets should follow the same contract: explicit controls, minimal default ceremony, local artifacts when persistence matters, and no surprise changes outside the requested scope.
 
 ## Install
 
@@ -51,37 +51,37 @@ codex plugin marketplace add li959598874/agent-forge --ref <release-tag>
 
 ## Quick Start
 
-Invoke RalPlan explicitly in Codex-compatible environments:
+Invoke Plan explicitly in Codex-compatible environments:
 
 ```text
-$ralplan --scale medium --depth standard --agents auto --name auth-refactor "Plan the authentication refactor"
+$plan --medium "Plan the authentication refactor"
 ```
 
 For lightweight tasks, reduce the process budget:
 
 ```text
-$ralplan --scale small --depth lite --agents off "Plan the logging cleanup"
+$plan --low "Plan the logging cleanup"
 ```
 
 Or:
 
 ```text
-$ralplan Keep the logging cleanup lightweight and do not use subagents.
+$plan Keep the logging cleanup lightweight and do not use subagents.
 ```
 
 For architecture or migration work, let the workflow use deeper clarification and official sources:
 
 ```text
-$ralplan --scale large --depth deep --agents on "Plan the plugin release process"
+$plan --high "Plan the plugin release process"
 ```
 
 Or:
 
 ```text
-$ralplan Create a deep plan for the plugin release process and use subagents for broad exploration.
+$plan Create a deep plan for the plugin release process and use subagents for broad exploration.
 ```
 
-RalPlan writes the final plan only after user approval:
+Plan writes a draft first, then upgrades the same file after user approval:
 
 ```text
 .agent-work/plans/<slug>/plan.md
@@ -89,16 +89,14 @@ RalPlan writes the final plan only after user approval:
 
 ## Controls
 
-| Option | Values | Purpose |
+| Option | Short | Purpose |
 | --- | --- | --- |
-| `--scale` | `auto`, `tiny`, `small`, `medium`, `large` | Sets expected planning surface and artifact richness. |
-| `--depth` | `auto`, `lite`, `standard`, `deep` | Sets how much clarification is performed. |
-| `--agents` | `off`, `auto`, `on` | Controls read-only subagent exploration. |
-| `--research` | `off`, `auto`, `on` | Controls research-backed evidence lanes. Default: `auto`. |
-| `--dir` | path | Sets the plan output root. Default: `.agent-work`. |
-| `--name` | slug | Sets the plan folder name. |
+| `--low` | `-l` | Minimal local grounding, no subagents by default, and only blocking questions. |
+| `--medium` | `-m` | Standard planning for normal feature, cleanup, or cross-file work. |
+| `--high` | `-h` | Deeper exploration, staged clarification, and read-only subagents when useful. |
+| `--max` | `-x` | Broad exploration, multi-agent research/critic lanes when available, and deep confirmation. |
 
-Read the complete RalPlan guide in [docs/ralplan.md](docs/ralplan.md). The design principles are documented in [docs/design-principles.md](docs/design-principles.md).
+Read the complete Plan guide in [docs/plan.md](docs/plan.md). The design principles are documented in [docs/design-principles.md](docs/design-principles.md).
 
 ## Repository Layout
 
@@ -114,12 +112,12 @@ Read the complete RalPlan guide in [docs/ralplan.md](docs/ralplan.md). The desig
 docs/
   design-principles.md      # Workflow philosophy and guardrails
   design-principles.zh-CN.md
-  ralplan.md                # English RalPlan guide
-  ralplan.zh-CN.md          # Chinese RalPlan guide
+  plan.md                   # English Plan guide
+  plan.zh-CN.md             # Chinese Plan guide
 scripts/
   validate.py               # Repo-local validation checks
 skills/
-  ralplan/                  # RalPlan workflow skill
+  plan/                     # Plan workflow skill
 ```
 
 ## Development
