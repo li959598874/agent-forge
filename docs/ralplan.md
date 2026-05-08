@@ -78,7 +78,7 @@ Normalized RalPlan options:
 - scale: medium (inferred from cross-module scope)
 - depth: standard (natural language requested a normal plan)
 - agents: auto (default)
-- research: on (default)
+- research: auto (default)
 - dir: .agent-work (default)
 - name: auth-refactor (derived)
 ```
@@ -118,7 +118,7 @@ When enabled, RalPlan organizes read-only exploration around independent evidenc
 
 ### `--research`
 
-Controls research-backed evidence lanes. Default: `on`.
+Controls research-backed evidence lanes. Default: `auto`.
 
 - `off`: do not browse or use external sources.
 - `auto`: let the agent decide whether source checks are needed.

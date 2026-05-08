@@ -94,7 +94,7 @@ RalPlan 只会在用户确认后写入最终计划：
 | `--scale` | `auto`, `tiny`, `small`, `medium`, `large` | 设置预期规划面和产物完整度。 |
 | `--depth` | `auto`, `lite`, `standard`, `deep` | 设置澄清访谈深度。 |
 | `--agents` | `off`, `auto`, `on` | 控制是否允许只读子代理探索。 |
-| `--research` | `off`, `auto`, `on` | 控制带研究支撑的证据链路。默认值：`on`。 |
+| `--research` | `off`, `auto`, `on` | 控制带研究支撑的证据链路。默认值：`auto`。 |
 | `--dir` | 路径 | 设置计划输出根目录。默认值：`.agent-work`。 |
 | `--name` | slug | 设置计划目录名。 |
 

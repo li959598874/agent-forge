@@ -2,14 +2,14 @@
 
 ## Task
 
-<One-paragraph summary of the requested work and the approved planning scope.>
+<Summary and scope.>
 
 ## Process Budget
 
 - Scale: `<auto|tiny|small|medium|large>` - <reason>
 - Depth: `<auto|lite|standard|deep>` - <reason>
 - Agents: `<off|auto|on>` - <reason>
-- Research: `<on|auto|off>` - <policy and reason>
+- Research: `<off|auto|on>` - <reason>
 
 ## Goals
 
@@ -36,23 +36,23 @@
 
 ### 1. <Slice Title>
 
-Objective: <What this slice accomplishes.>
+Objective: <Outcome.>
 
-Likely touchpoints:
+Touchpoints:
 
 - <File, module, system, or area>
 
-Completion criteria:
+Done:
 
-- <How to know this slice is done>
+- <Done signal>
 
 Validation:
 
-- <Focused verification for this slice>
+- <Check for this slice>
 
 ## Validation
 
-- <Overall verification command, test, review path, or manual check>
+- <Overall command, test, review path, or manual check>
 
 ## Risks And Rollback
 

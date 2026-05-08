@@ -80,7 +80,7 @@ Normalized RalPlan options:
 - scale: medium (inferred from cross-module scope)
 - depth: standard (natural language requested a normal plan)
 - agents: auto (default)
-- research: on (default)
+- research: auto (default)
 - dir: .agent-work (default)
 - name: auth-refactor (derived)
 ```
@@ -120,7 +120,7 @@ Normalized RalPlan options:
 
 ### `--research`
 
-控制带研究支撑的证据链路。默认值：`on`。
+控制带研究支撑的证据链路。默认值：`auto`。
 
 - `off`：不浏览、不使用外部来源。
 - `auto`：由 agent 判断是否需要来源核验。

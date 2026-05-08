@@ -94,7 +94,7 @@ RalPlan writes the final plan only after user approval:
 | `--scale` | `auto`, `tiny`, `small`, `medium`, `large` | Sets expected planning surface and artifact richness. |
 | `--depth` | `auto`, `lite`, `standard`, `deep` | Sets how much clarification is performed. |
 | `--agents` | `off`, `auto`, `on` | Controls read-only subagent exploration. |
-| `--research` | `off`, `auto`, `on` | Controls research-backed evidence lanes. Default: `on`. |
+| `--research` | `off`, `auto`, `on` | Controls research-backed evidence lanes. Default: `auto`. |
 | `--dir` | path | Sets the plan output root. Default: `.agent-work`. |
 | `--name` | slug | Sets the plan folder name. |
 

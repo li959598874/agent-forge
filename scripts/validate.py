@@ -24,6 +24,7 @@ MACHINE_PATH_PATTERNS = [
     re.compile(r"[A-Za-z]:\\"),
     re.compile(re.escape(SYSTEM_SKILL_PATH)),
 ]
+IGNORED_TEXT_PARTS = {".git", ".agent-work", ".codex", "__pycache__"}
 
 
 def rel(path: Path) -> str:
@@ -141,8 +142,8 @@ def check_skill_contract() -> None:
                 ERRORS.append(f"skills/ralplan/SKILL.md missing frontmatter field {field}")
         if "approved local Markdown execution plan" not in frontmatter:
             ERRORS.append("RalPlan description should mention the local Markdown plan artifact")
-    if "research`, which defaults to `on`" not in skill:
-        ERRORS.append("RalPlan skill should declare research default on")
+    if "Missing options are `auto`, except `dir`, which defaults to `.agent-work`" not in skill:
+        ERRORS.append("RalPlan skill should declare research default auto")
     if "source-checking evidence lanes" not in skill:
         ERRORS.append("RalPlan skill should describe research as source-checking evidence lanes")
 
@@ -204,11 +205,10 @@ def check_issue_templates() -> None:
 
 
 def check_trailing_whitespace() -> None:
-    ignored_parts = {".git"}
     for path in ROOT.rglob("*"):
         if not path.is_file():
             continue
-        if any(part in ignored_parts for part in path.parts):
+        if any(part in IGNORED_TEXT_PARTS for part in path.parts):
             continue
         if path.suffix.lower() not in TEXT_SUFFIXES:
             continue
@@ -222,11 +222,10 @@ def check_trailing_whitespace() -> None:
 
 
 def check_portable_text() -> None:
-    ignored_parts = {".git"}
     for path in ROOT.rglob("*"):
         if not path.is_file():
             continue
-        if any(part in ignored_parts for part in path.parts):
+        if any(part in IGNORED_TEXT_PARTS for part in path.parts):
             continue
         if path.suffix.lower() not in TEXT_SUFFIXES:
             continue
