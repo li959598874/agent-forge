@@ -1,77 +1,108 @@
 ---
 name: plan
-description: Create an approved local Markdown execution plan through a draft-to-plan workflow. Use when the user invokes $plan, asks to clarify requirements, define scope boundaries, choose tradeoffs, or plan before implementation. Do not use for implementation, final review, commits, or executing a plan.
+description: Use when the user explicitly invokes `$plan`, asks to plan before implementation, or wants to turn ambiguous requirements into a decision-ready local implementation checklist.
 ---
 
 # Plan
 
-## Mode Contract
+## Purpose
 
-- Syntax: `$plan [--low|-l|--medium|-m|--high|-h|--max|-x] "<task>"`.
-- Planning-only: do not implement, review, commit, run destructive commands, or execute the plan. If asked to execute, plan the execution instead.
-- Treat `$plan` as the only planning interface.
-- Write only `.agent-work/plans/<slug>/plan.md` with `Status: Draft` or `Status: Execution Plan`.
-- Do not create JSON handoffs, hidden state, `.gitignore`, hooks, global config, or subagent write tasks.
-- Keep updates short and task-relevant; avoid verbose logging or repeated phrasing.
+Produce a local planning artifact before implementation: explore, clarify, write a draft, then upgrade the same file to a final executable checklist after user confirmation.
 
-## Presets
+Prefer subagents when exploration is broad enough to threaten the main agent's context, or when code, tests, risks, and documentation research can be split into independent tracks. Keep the main agent responsible for synthesis, decisions, and the plan file.
 
-Normalize before exploration. Precedence: preset flags, explicit natural language, inferred task intent, then intelligent default. If no preset is explicit, choose one. Echo the selected preset in the conversation with a brief reason; do not add a `Preset:` field to the artifact.
+This skill does not override higher-priority instructions. During planning, mutate only plan files unless the user explicitly asks for implementation.
 
-| Preset | Use When | Behavior Ceiling |
-| --- | --- | --- |
-| `low` (`--low`, `-l`) | Local, low-risk, well-bounded planning. | Minimal local grounding and 0-2 blocking questions. |
-| `medium` (`--medium`, `-m`) | Normal feature, cleanup, or cross-file planning. | Relevant files, manifests, tests, enough questions to freeze scope and acceptance. |
-| `high` (`--high`, `-h`) | Architecture, migration, broad ambiguity, or higher failure cost. | Broader repo exploration, staged clarification, evidence capture, and read-only subagents when available. |
-| `max` (`--max`, `-x`) | High-stakes, large, unfamiliar, or research-heavy planning. | Wide exploration, source checks, critic pass, and read-only multi-agent lanes when available. |
+## File Rules
 
-Presets are ceilings, not quotas. Move quickly when requirements are clear; ask boundary questions when even a low-preset task is underspecified.
+- Store plans in `.agent-work/` unless the user provides a directory.
+- Name files `<yyyyMMdd-HHmm>-<task-slug>.plan.md` inside the selected directory unless the user provides a filename.
+- Update a matching draft instead of creating a duplicate.
+- Keep one file per plan; upgrade `status: draft` to `status: final` in place.
+- Use `assets/draft-plan-template.md` for drafts and `assets/final-plan-template.md` for finals, adjusting headings only when the task needs it.
 
-## Subagent Orchestration
+## Workflow
 
-Use subagents only for read-only planning lanes; never delegate artifact writes, implementation, commits, destructive operations, or user communication. The main agent owns synthesis and decisions.
+1. Ground in the environment and research broadly.
+   - Start with local truth. Resolve discoverable facts before asking the user.
+   - Run at least one targeted non-mutating exploration pass when a repo or local environment is available.
+   - Use `rg` and `fd` first; inspect likely entrypoints, configs, manifests, schemas, types, tests, fixtures, docs, generated-source boundaries, and existing patterns.
+   - Map relevant subsystems, ownership boundaries, public interfaces, data flow, failure modes, and verification commands before proposing changes.
+   - Split independent research to subagents when useful; follow Subagent Rules.
+   - Use external research for current or version-sensitive facts, platform rules, APIs, official docs, standards, or behavior that cannot be trusted from memory.
+   - Run dry-run checks only when they improve the plan and do not change repo-tracked source files.
+   - Record facts, paths, URLs, uncertainties, and rejected paths only when they affect the draft or final plan.
 
-For `high`, enable subagents when available and split independent lanes such as subsystem discovery, risk review, validation strategy, or external-source research. For `max`, use read-only multi-agent lanes by default when available, including a critic or risk lane for architecture, migration, high-risk, or unclear-requirement work.
+2. Resolve intent.
+   - Follow Asking Questions.
+   - Ask only after exploration, except for prompt contradictions or undiscoverable preferences.
+   - Ask about high-impact ambiguity in the goal, success criteria, audience, scope, constraints, current state, preferences, or tradeoffs.
+   - Continue until the intent is stable enough to state the goal, success criteria, audience, in-scope work, out-of-scope work, constraints, current state, and chosen tradeoffs.
+   - If the user changes direction, revisit exploration, refresh assumptions, and continue until the updated intent is stable.
+   - Treat intent as decision-complete only when no high-impact ambiguity remains and unanswered tradeoffs have recorded conservative defaults.
 
-Before delegating, do the immediate local grounding yourself. Delegate only parallel side lanes that return concise evidence, file paths, risks, recommendations, and confidence.
+3. Write the draft plan.
+   - Create or update the plan file with `status: draft` using `assets/draft-plan-template.md`.
+   - Include only Approach Overview, Key Decisions, and Open Questions and Optimization Ideas.
+   - Do not include an executable task checklist.
+   - Include research notes only where they support a decision or open question.
+   - Ask the user to confirm or revise the draft direction before writing the final plan.
 
-## Execution Vs Mutation
+4. Upgrade to the final plan.
+   - Write the final only after the user explicitly confirms the draft direction or remaining decisions.
+   - Rewrite the same file with `status: final` using `assets/final-plan-template.md`.
+   - Make the plan actionable by another engineer or agent without product or technical decisions and without hidden chat context.
+   - Include summary, assumptions, ordered execution checklist, validation checklist, risks, safeguards, and completion criteria.
+   - Group tasks by subsystem or behavior; mention file paths only to remove ambiguity.
 
-Allowed: read/search files, inspect configs/manifests/schemas/docs/tests/types, run static or dry-run checks that do not edit tracked files, and write/update only the plan artifact.
+5. Report back.
+   - State the plan path and status.
+   - Summarize unresolved decisions for drafts.
+   - Summarize implementation and validation checkpoints for finals.
+   - Do not duplicate the full local plan in chat unless requested.
 
-Forbidden outside the artifact: implementation edits, migrations, codegen, formatter rewrites, commits, destructive commands, and subagent write tasks.
+## Asking Questions
 
-## Phase 1 - Ground In The Environment
+- When available, prefer `request_user_input`, but use it only for plan-changing decisions, important assumptions, or information that cannot be discovered through non-mutating exploration.
+- Provide 2-4 concrete, meaningful, mutually exclusive options; omit filler choices and recommend a default when defensible.
+- Ask direct free-form questions only when an unavoidable important question cannot be expressed with reasonable multiple-choice options.
+- Each question must materially change the spec or plan, confirm or lock an assumption, choose between meaningful tradeoffs, and not be answerable by exploration.
+- Do not ask "should I proceed?" as a substitute for confirmation. Ask the user to confirm the draft direction, pick remaining decisions, or request revisions.
 
-Explore first, ask second. Decide what needs reading, then batch independent reads/searches. Prefer `rg`/`rg --files` and parallel reads when available. Inspect local instructions, repo structure, manifests, named files, likely tests, and obvious docs. Treat repo/system facts as discoverable; do not ask when inspection can answer. Use official or primary sources for current external facts. Capture shaping facts for the final Evidence section.
+## Subagent Rules
 
-## Phase 2 - Clarify Intent
+- Assign subagents narrow, independent responsibilities:
+  - code-map: relevant files, ownership boundaries, patterns, and likely edit points.
+  - test-map: tests, harnesses, fixtures, and verification commands.
+  - risk-map: edge cases, compatibility constraints, generated files, migrations, and likely regressions.
+  - docs-research: primary sources or official docs for libraries, APIs, platforms, or current behavior.
+- For explorer, prefer the latest fast, inexpensive model available in the current environment.
+- Ask each subagent for concise findings, relevant paths or URLs, confidence level, and unresolved questions.
+- Keep subagents non-mutating during planning.
+- Do not ask subagents to decide product intent, finalize tradeoffs, or write the final plan.
+- Deduplicate overlapping findings before adding them to the plan.
 
-Ask only for decisions that materially change the draft or execution plan. Continue until goal, success criteria, audience, scope, constraints, current state, and tradeoffs are clear.
+## Draft Quality Bar
 
-Each clarification question needs clear question text, meaningful option labels, one-sentence option descriptions, and a custom-answer path. With `request_user_input`, rely on the host free-form option. In plain text, include `User-provided answer`.
+- Explain the approach and supporting repo facts.
+- Separate confirmed decisions from recommended defaults.
+- Keep open questions limited to unresolved blockers.
+- Mark optimization ideas as optional and non-blocking.
 
-Do not ask filler questions, questions answered by exploration, or questions whose answers would not change the plan.
+## Final Quality Bar
 
-## Phase 3 - Draft Then Execution Plan
+- Confirm user approval before writing `status: final`.
+- Make the plan decision-complete.
+- Start every checklist item with an imperative verb and a clear outcome.
+- Name concrete commands, tests, manual checks, or review criteria.
+- Record assumptions explicitly and remove draft-only uncertainty.
 
-Create one artifact in two stages: write `.agent-work/plans/<slug>/plan.md` with `Status: Draft`, report a concise summary/path/confirmation decisions, then update the same file to `Status: Execution Plan` after confirmation. Do not paste the whole draft unless asked.
+## External Research
 
-Derive `<slug>` from lowercase hyphenated task words. If the path exists and the user did not ask to continue it, append a suffix such as `-2`. Choose headings and depth by task and preset while satisfying the requirements below.
+- Prefer official documentation, source repositories, standards, changelogs, and vendor docs.
+- Use web research for current or version-sensitive facts, APIs, laws, pricing, schedules, platform behavior, or other unstable information.
+- Cite source URLs when external facts affect decisions; avoid secondary summaries when primary sources are available.
 
-## Draft Requirements
+## Templates
 
-A draft is a proposal for confirmation, not an execution plan. It must cover requirement description, key decisions already made or recommended, suggestions/tradeoffs needing user attention, open questions with labels/descriptions/`User-provided answer`, and the confirmation gate. Do not add implementation slices, rollout detail, or low-level breakdown unless needed to explain a decision.
-
-## Execution Plan Requirements
-
-An execution plan is the confirmed, decision-complete version of the draft. It must cover goals/non-goals, confirmed decisions/assumptions, actionable execution approach or slices, concrete validation, risks/rollback where relevant, open questions or `None`, and Intent drift check: why the plan still matches the original intent and when execution should pause to re-confirm.
-
-Write stable Markdown. Do not force fixed headings when a smaller or task-specific structure is clearer.
-
-## Finalization Rules
-
-- A draft is allowed to contain open questions and recommendations.
-- An execution plan must be decision-complete enough for another engineer or agent to implement without hidden chat context.
-- If important ambiguity remains after reasonable clarification, keep the artifact at `Status: Draft`.
-- Report the artifact path, selected preset, remaining assumptions, and any validation gaps.
+Use `assets/draft-plan-template.md` for drafts. After user confirmation, replace the same plan file's body with `assets/final-plan-template.md` and change `status` to `final`.

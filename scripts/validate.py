@@ -67,6 +67,8 @@ def check_required_files() -> None:
         "SECURITY.md",
         "SUPPORT.md",
         "CHANGELOG.md",
+        "TODO.md",
+        "TODO.zh-CN.md",
         ".gitignore",
         ".agents/plugins/marketplace.json",
         ".codex-plugin/plugin.json",
@@ -99,8 +101,11 @@ def check_manifests() -> None:
         if not repository.startswith("https://github.com/"):
             ERRORS.append(".codex-plugin/plugin.json repository should be a GitHub HTTPS URL")
         prompts = plugin.get("interface", {}).get("defaultPrompt", [])
-        if not any("$plan --low" in prompt for prompt in prompts):
-            ERRORS.append("plugin default prompts should include a low-preset Plan example")
+        if not any(str(prompt).startswith("$plan ") for prompt in prompts):
+            ERRORS.append("plugin default prompts should include a Plan invocation example")
+        legacy_prompt_flags = ("--low", "--medium", "--high", "--max")
+        if any(any(flag in str(prompt) for flag in legacy_prompt_flags) for prompt in prompts):
+            ERRORS.append("plugin default prompts should not expose legacy Plan preset flags")
 
     marketplace = load_json(".agents/plugins/marketplace.json")
     plugins = marketplace.get("plugins", []) if marketplace else []
@@ -137,39 +142,42 @@ def check_skill_contract() -> None:
         for field in ("name: plan", "description:"):
             if field not in frontmatter:
                 ERRORS.append(f"skills/plan/SKILL.md missing frontmatter field {field}")
-        if "approved local Markdown execution plan" not in frontmatter:
-            ERRORS.append("Plan description should mention the local Markdown plan artifact")
-    if "$plan [--low|-l|--medium|-m|--high|-h|--max|-x]" not in skill:
-        ERRORS.append("Plan skill should declare the preset flag syntax")
-    if "Status: Draft" not in skill or "Status: Execution Plan" not in skill:
-        ERRORS.append("Plan skill should describe the two-stage draft-to-plan flow")
+        if "decision-ready local implementation checklist" not in frontmatter:
+            ERRORS.append("Plan description should mention the local implementation checklist")
     required_skill_markers = [
-        "## Mode Contract",
-        "## Subagent Orchestration",
-        "## Execution Vs Mutation",
-        "## Phase 1 - Ground In The Environment",
-        "## Phase 2 - Clarify Intent",
-        "## Phase 3 - Draft Then Execution Plan",
-        "Echo the selected preset in the conversation",
-        "do not add a `Preset:` field to the artifact",
-        "read-only planning lanes",
-        "critic or risk lane",
-        "User-provided answer",
-        ".agent-work/plans/<slug>/plan.md",
-        "## Draft Requirements",
-        "## Execution Plan Requirements",
-        "Intent drift check",
+        "## Purpose",
+        "## File Rules",
+        "## Workflow",
+        "## Asking Questions",
+        "## Subagent Rules",
+        "## Draft Quality Bar",
+        "## Final Quality Bar",
+        "## External Research",
+        "## Templates",
+        "Store plans in `.agent-work/` unless the user provides a directory.",
+        "Name files `<yyyyMMdd-HHmm>-<task-slug>.plan.md`",
+        "upgrade `status: draft` to `status: final`",
+        "assets/draft-plan-template.md",
+        "assets/final-plan-template.md",
+        "prefer the latest fast, inexpensive model available in the current environment",
+        "Do not duplicate the full local plan in chat unless requested.",
         "decision-complete",
     ]
     for marker in required_skill_markers:
         if marker not in skill:
-            ERRORS.append(f"Plan skill missing single-file prompt marker: {marker}")
+            ERRORS.append(f"Plan skill missing prompt marker: {marker}")
 
-    plan_dir = ROOT / "skills" / "plan"
-    for folder in ("assets", "references"):
-        target = plan_dir / folder
-        if target.exists() and any(target.iterdir()):
-            ERRORS.append(f"Plan prompt should not keep extra files under skills/plan/{folder}")
+    for path in (
+        "skills/plan/assets/draft-plan-template.md",
+        "skills/plan/assets/final-plan-template.md",
+    ):
+        require_file(path)
+    draft_template = read_text("skills/plan/assets/draft-plan-template.md")
+    final_template = read_text("skills/plan/assets/final-plan-template.md")
+    if 'status: "draft"' not in draft_template:
+        ERRORS.append("draft Plan template should set status: draft")
+    if 'status: "final"' not in final_template:
+        ERRORS.append("final Plan template should set status: final")
 
     openai_yaml = read_text("skills/plan/agents/openai.yaml")
     for expected in ("display_name:", "short_description:", "default_prompt:"):
@@ -196,6 +204,37 @@ def check_docs() -> None:
                 ERRORS.append(f"{path} missing expected reference: {token}")
         if "--ref v0.1.0" in text:
             ERRORS.append(f"{path} should not recommend an unreleased v0.1.0 tag")
+
+    stale_patterns = (
+        "$ralplan",
+        "RalPlan",
+        "ralplan",
+        "--low",
+        "--medium",
+        "--high",
+        "--max",
+        ".agent-work/plans/<slug>/plan.md",
+        "Status: Draft",
+        "Status: Execution Plan",
+    )
+    docs_to_check = [
+        "README.md",
+        "README.zh-CN.md",
+        "CONTRIBUTING.md",
+        "TODO.md",
+        "TODO.zh-CN.md",
+        "AGENTS.md",
+        "docs/plan.md",
+        "docs/plan.zh-CN.md",
+        "docs/design-principles.md",
+        "docs/design-principles.zh-CN.md",
+        ".codex-plugin/plugin.json",
+    ]
+    for path in docs_to_check:
+        text = read_text(path)
+        for pattern in stale_patterns:
+            if pattern in text:
+                ERRORS.append(f"{path} contains stale Plan reference: {pattern}")
 
 
 

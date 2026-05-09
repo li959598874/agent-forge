@@ -2,19 +2,20 @@
 
 [中文说明](README.zh-CN.md)
 
-Agent Forge is a Codex-first workflow plugin for adaptive agent orchestration. It gives users explicit control over how much process a task receives, while still allowing Codex to make conservative default decisions when the user leaves the process budget implicit.
+Agent Forge is a Codex-first plugin for user-controlled, low-intrusion, composable multi-agent workflow orchestration through skills. It provides workflow primitives that users can invoke, combine, and ignore independently instead of forcing every request through one fixed process.
 
-The guiding rule is simple: small tasks should stay small; complex work should have a clear path into deeper clarification, research-backed read-only exploration, and durable local planning.
+The guiding rule is simple: users control the workflow, skills stay composable, and agent orchestration should add structure only when it improves the result.
 
 ## Why This Exists
 
-Existing agent orchestration workflows can be useful, but they often force every request through a heavy process. That creates avoidable token cost, adds ceremony to small tasks, and can interfere with a user's existing skills or local workflow. Codex plan mode is intentionally lightweight, but its plan artifact is not written into the repository by default.
+Existing agent orchestration workflows can be useful, but they often force every request through a fixed process. That creates avoidable token cost, adds ceremony to small tasks, and can interfere with a user's existing skills or local workflow.
 
-Agent Forge is built around three constraints:
+Agent Forge is built around four constraints:
 
-- **Explicit process budget**: users can choose a planning preset that controls exploration, clarification depth, subagent use, and research-backed investigation.
-- **Adaptive defaults**: when no preset is provided, the agent escalates process only when task evidence justifies it.
-- **Low intrusion**: the plugin ships skills and documentation without changing user hooks, global config, or unrelated tools.
+- **User-controlled flow**: workflows are explicit skills, not hidden interception rules.
+- **Low intrusion**: the plugin ships skills and documentation without changing hooks, global config, or unrelated tools.
+- **Composable skills**: each skill should solve one workflow problem and remain usable alongside the user's own skills.
+- **Multi-agent orchestration**: subagents are optional lanes for exploration, risk review, tests, docs research, or future workflow roles when the task benefits from parallel context.
 
 ## Current Status
 
@@ -25,7 +26,7 @@ This repository currently publishes one plugin and one skill:
 | `agent-forge` plugin | Codex plugin wrapper for Agent Forge workflow assets. |
 | `$plan` skill | Clarifies ambiguous tasks, writes a draft, and upgrades it to an approved Markdown execution plan. |
 
-Plan is the first workflow primitive. Future workflow assets should follow the same contract: explicit controls, minimal default ceremony, local artifacts when persistence matters, and no surprise changes outside the requested scope.
+Plan is the first workflow primitive. Future workflow assets should follow the same contract: explicit invocation, low default ceremony, clean composition with other skills, and no surprise changes outside the requested scope.
 
 ## Install
 
@@ -54,47 +55,36 @@ codex plugin marketplace add li959598874/agent-forge --ref <release-tag>
 Invoke Plan explicitly in Codex-compatible environments:
 
 ```text
-$plan --medium "Plan the authentication refactor"
+$plan "Plan the authentication refactor"
 ```
 
-For lightweight tasks, reduce the process budget:
+Natural-language constraints are part of the request:
 
 ```text
-$plan --low "Plan the logging cleanup"
+$plan "Plan the logging cleanup. Keep the first draft concise."
 ```
 
-Or:
+For broader work, ask for deeper read-only exploration in the task text:
 
 ```text
-$plan Keep the logging cleanup lightweight and do not use subagents.
-```
-
-For architecture or migration work, let the workflow use deeper clarification and official sources:
-
-```text
-$plan --high "Plan the plugin release process"
-```
-
-Or:
-
-```text
-$plan Create a deep plan for the plugin release process and use subagents for broad exploration.
+$plan "Plan the plugin release process. Use read-only subagents if the repository scope is broad."
 ```
 
 Plan writes a draft first, then upgrades the same file after user approval:
 
 ```text
-.agent-work/plans/<slug>/plan.md
+.agent-work/<yyyyMMdd-HHmm>-<task-slug>.plan.md
 ```
 
-## Controls
+## Workflow
 
-| Option | Short | Purpose |
-| --- | --- | --- |
-| `--low` | `-l` | Minimal local grounding, no subagents by default, and only blocking questions. |
-| `--medium` | `-m` | Standard planning for normal feature, cleanup, or cross-file work. |
-| `--high` | `-h` | Deeper exploration, staged clarification, and read-only subagents when useful. |
-| `--max` | `-x` | Broad exploration, multi-agent research/critic lanes when available, and deep confirmation. |
+Plan follows a confirmation-gated flow:
+
+1. Explore the local environment without mutating source files.
+2. Ask only plan-changing questions that inspection cannot answer.
+3. Save a draft with `status: "draft"`.
+4. Wait for user confirmation or revision.
+5. Replace the same file with a final checklist and `status: "final"`.
 
 Read the complete Plan guide in [docs/plan.md](docs/plan.md). The design principles are documented in [docs/design-principles.md](docs/design-principles.md).
 

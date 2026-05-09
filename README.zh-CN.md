@@ -2,19 +2,20 @@
 
 [English](README.md)
 
-Agent Forge 是一个面向 Codex 的轻量智能体工作流编排插件。它把“任务需要多少流程”的控制权交给用户显式配置，同时在用户不指定流程预算时，允许 Codex 根据任务证据做保守的默认判断。
+Agent Forge 是一个面向 Codex 的插件，用 skills 提供一套用户可控、低侵入、可自由组合使用的多智能体工作流编排能力。用户可以按需调用、组合或忽略每个 workflow 原语，而不是把所有请求都塞进同一套固定流程。
 
-核心规则很简单：小任务保持小；复杂工作在确实需要时，再进入更深入的澄清、带研究支撑的只读探索和可持久保存的本地计划。
+核心规则很简单：流程由用户控制，skill 保持可组合，智能体编排只有在能提升结果时才增加结构。
 
 ## 项目初衷
 
-现有智能体编排工作流有价值，但常见问题是把所有请求都放进重流程。这样会带来不必要的 token 消耗，让小任务变得笨重，也可能干扰用户已有的 skills 或本地工作流。Codex plan 模式足够轻量，但默认不会把计划产物写入仓库。
+现有智能体编排工作流有价值，但常见问题是把所有请求都放进固定流程。这样会带来不必要的 token 消耗，让小任务变得笨重，也可能干扰用户已有的 skills 或本地工作流。
 
-Agent Forge 围绕三个约束构建：
+Agent Forge 围绕四个约束构建：
 
-- **显式流程预算**：用户可以通过规划预设控制探索范围、澄清深度、子代理使用和带研究支撑的探索。
-- **自适应默认值**：当用户不指定预设时，只有任务证据确实需要，agent 才升级流程。
-- **低侵入性**：插件只提供 skills 和文档，不改用户 hook、全局配置或无关工具。
+- **用户可控流程**：workflow 是显式调用的 skills，而不是隐藏拦截规则。
+- **低侵入性**：插件只提供 skills 和文档，不改 hook、全局配置或无关工具。
+- **Skill 自由组合**：每个 skill 只解决一个 workflow 问题，并能和用户自己的 skills 并行使用。
+- **多智能体编排**：当任务受益于并行上下文时，子代理可作为探索、风险复核、测试、文档研究或未来 workflow 角色的可选通道。
 
 ## 当前状态
 
@@ -25,7 +26,7 @@ Agent Forge 围绕三个约束构建：
 | `agent-forge` plugin | Agent Forge 工作流资产的 Codex 插件封装。 |
 | `$plan` skill | 澄清模糊任务，写入草案，并在确认后升级为 Markdown 执行计划。 |
 
-Plan 是第一个工作流原语。后续新增资产应遵循同一合同：显式控制、默认低仪式感、需要持久化时写入本地产物，并且不在请求范围外制造惊喜变更。
+Plan 是第一个工作流原语。后续新增资产应遵循同一合同：显式调用、默认低仪式感、能和其他 skills 清晰组合，并且不在请求范围外制造惊喜变更。
 
 ## 安装
 
@@ -54,47 +55,36 @@ codex plugin marketplace add li959598874/agent-forge --ref <release-tag>
 在兼容 Codex skill 的环境中显式调用 Plan：
 
 ```text
-$plan --medium "Plan the authentication refactor"
+$plan "Plan the authentication refactor"
 ```
 
-轻量任务可以降低流程预算：
+自然语言约束是请求的一部分：
 
 ```text
-$plan --low "Plan the logging cleanup"
+$plan "Plan the logging cleanup. Keep the first draft concise."
 ```
 
-或：
+范围较宽的工作可以直接在任务文本中要求更深入的只读探索：
 
 ```text
-$plan 保持 logging cleanup 轻量，不使用子代理。
-```
-
-架构或迁移类任务可以启用更深澄清和官方来源研究：
-
-```text
-$plan --high "Plan the plugin release process"
-```
-
-或：
-
-```text
-$plan 为 plugin release process 制定一份深入计划，并使用子代理做宽范围探索。
+$plan "Plan the plugin release process. Use read-only subagents if the repository scope is broad."
 ```
 
 Plan 会先写入草案，再在用户确认后升级同一份文件：
 
 ```text
-.agent-work/plans/<slug>/plan.md
+.agent-work/<yyyyMMdd-HHmm>-<task-slug>.plan.md
 ```
 
-## 控制项
+## 工作流
 
-| 参数 | 缩写 | 作用 |
-| --- | --- | --- |
-| `--low` | `-l` | 最少本地 grounding，默认不使用子代理，只问阻塞问题。 |
-| `--medium` | `-m` | 面向普通 feature、cleanup 或跨文件工作的标准规划。 |
-| `--high` | `-h` | 更深探索、分阶段澄清，并在有价值时使用只读子代理。 |
-| `--max` | `-x` | 宽范围探索，可用时使用多智能体 research/critic lanes，并进行深度确认。 |
+Plan 遵循带确认门的流程：
+
+1. 以非变更方式探索本地环境。
+2. 只询问无法通过检查回答、且会改变计划的问题。
+3. 保存 `status: "draft"` 的草案。
+4. 等待用户确认或修订。
+5. 用最终 checklist 替换同一份文件，并设置 `status: "final"`。
 
 完整 Plan 说明见 [docs/plan.zh-CN.md](docs/plan.zh-CN.md)。设计原则见 [docs/design-principles.zh-CN.md](docs/design-principles.zh-CN.md)。
 

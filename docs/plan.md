@@ -1,151 +1,84 @@
 # Plan
 
-Plan is a planning skill for turning ambiguous software or workflow requests into an approved Markdown execution plan. It is intentionally narrow: it clarifies, drafts, waits for confirmation, and upgrades one local Markdown file into an execution plan. It does not implement code, perform final review, commit changes, or create parallel JSON handoff files.
+[中文](plan.zh-CN.md)
 
-Plan is the first Agent Forge workflow primitive. It applies the project principle documented in [design-principles.md](design-principles.md): use only as much process as the task warrants.
+Plan is a Codex skill for producing a local implementation plan before execution. It explores the current environment, clarifies only decisions that materially affect the plan, writes a draft, waits for user confirmation, then upgrades the same Markdown file to a final checklist.
 
-## Skill Location
+Plan is planning-only by default. It mutates plan files, not source code, unless the user explicitly asks for implementation.
+
+## Skill Package
 
 ```text
 skills/plan/
   SKILL.md
   agents/openai.yaml
+  assets/
+    draft-plan-template.md
+    final-plan-template.md
 ```
-
-## When To Use
-
-Use Plan only when the user explicitly asks for planning:
-
-- The user invokes `$plan` directly.
-- The user clearly asks to create a plan before implementation.
-- The user clearly asks for a durable plan artifact for future execution.
-
-Do not use Plan for general clarification, immediate implementation, a final code review, a commit, or a purely informational answer.
 
 ## Invocation
 
-Plan supports preset flags while also accepting natural-language instructions and inferred intent.
+Use Plan when the user explicitly invokes `$plan`, asks to plan before implementation, or wants a local checklist that can be executed later.
 
 ```text
-$plan [--low|-l|--medium|-m|--high|-h|--max|-x] "<task>"
+$plan "Plan the authentication refactor"
 ```
 
-Examples:
+Natural-language constraints are part of the request:
 
 ```text
-$plan --low "Plan a logging cleanup"
-```
-
-```text
-$plan -m "Plan the authentication refactor"
+$plan "Plan the release process. Use read-only subagents if the repository scope is broad."
 ```
 
 ```text
-$plan --high "Plan the plugin release process"
+$plan "Plan the logging cleanup and write the plan under .agent-work/planning."
 ```
+
+## File Rules
+
+Plan stores files in `.agent-work/` unless the user provides another directory. The default filename is:
 
 ```text
-$plan -x "Plan this architecture migration"
+<yyyyMMdd-HHmm>-<task-slug>.plan.md
 ```
 
-Natural-language controls are valid:
+If a matching draft already exists, Plan updates that draft instead of creating a duplicate. Every plan stays in one Markdown file. A draft uses `status: "draft"`; the confirmed version replaces the same file with `status: "final"`.
 
-```text
-$plan Keep this lightweight and do not use subagents. Plan how to clean up the logging module.
-```
-
-```text
-$plan Create a deep plan for the plugin release process and use subagents for broad exploration.
-```
-
-## Preset Normalization
-
-The first workflow step is to normalize the preset from:
-
-1. Structured preset flags.
-2. Explicit natural-language preferences.
-3. Implied intent from the task.
-4. The agent's intelligent default.
-
-The skill must echo the normalized preset before continuing:
-
-```text
-Normalized Plan preset:
-- preset: medium (inferred from cross-module scope)
-```
-
-If the user does not provide a preset, the agent decides. If an inferred choice materially affects process and is uncertain, the agent asks before continuing.
-
-## Presets
-
-| Preset | Short | Purpose |
-| --- | --- | --- |
-| `--low` | `-l` | Minimal local grounding and only blocking questions. |
-| `--medium` | `-m` | Standard planning for normal feature, cleanup, or cross-file work. |
-| `--high` | `-h` | Deeper exploration, staged clarification, and read-only subagents when available. |
-| `--max` | `-x` | Broad exploration, read-only multi-agent research/critic lanes when available, and deep confirmation. |
-
-Presets are process ceilings, not quotas. A detailed high-risk request can still move quickly, and a small vague task may still need one or two boundary questions.
+Drafts use `skills/plan/assets/draft-plan-template.md`. Finals use `skills/plan/assets/final-plan-template.md`.
 
 ## Workflow
 
-Plan follows an approval-gated draft-to-plan flow:
+1. Ground in local truth before asking questions.
+2. Inspect relevant instructions, structure, manifests, schemas, types, tests, fixtures, docs, generated-source boundaries, and existing patterns.
+3. Use external research only for current or version-sensitive facts, platform rules, APIs, official docs, standards, or behavior that cannot be trusted from memory.
+4. Ask only high-impact questions that cannot be answered through exploration.
+5. Write or update the draft plan with Approach Overview, Key Decisions, and Open Questions and Optimization Ideas.
+6. Ask the user to confirm or revise the draft direction.
+7. After explicit confirmation, rewrite the same file as a final plan with summary, assumptions, execution checklist, validation checklist, risks, safeguards, and completion criteria.
+8. Report the plan path and status without duplicating the full local plan in chat unless requested.
 
-1. Normalize the preset and echo it in the conversation.
-2. Ground by reading project instructions, structure, manifests, test entry points, and directly relevant files.
-3. Ask only unresolved clarification questions.
-4. Write a draft artifact with `Status: Draft`.
-5. Report a short draft summary, path, and decisions needing confirmation.
-6. Wait for user confirmation or revisions.
-7. Upgrade the same Markdown file to `Status: Execution Plan`.
-8. Report the plan path and remaining assumptions or validation gaps.
+## Questions
 
-If the user says "just draft" or "do not write yet", Plan should stop before the upgrade step for that turn.
+Questions should lock a meaningful decision, confirm an important assumption, or choose between real tradeoffs. When `request_user_input` is available, use it for plan-changing decisions. In plain text, ask a direct free-form question only when a reasonable multiple-choice shape would be misleading.
 
-## Clarification Questions
+Do not ask questions that local inspection can answer. Do not ask "should I proceed?" as a substitute for draft confirmation.
 
-Questions must be clear enough that the user is not forced to choose without understanding the tradeoff. Each question needs:
+## Subagent Rules
 
-- A clear question text.
-- Meaningful option labels.
-- A one-sentence option description.
-- A way for the user to provide their own answer.
+Use subagents as narrow, read-only planning lanes when broad exploration would dilute the main agent's context. Useful lanes include code mapping, test mapping, risk review, and official-docs research.
 
-When the host provides `request_user_input`, use it and rely on its free-form option. In plain text, include an explicit `User-provided answer` option.
+For exploration subagents, prefer the latest fast, inexpensive model available in the current environment. Ask each subagent for concise findings, relevant paths or URLs, confidence level, and unresolved questions.
 
-## Plan Artifact
+The main agent remains responsible for user communication, product decisions, synthesis, and the plan file. Subagents should not decide product intent, finalize tradeoffs, write the plan, implement code, or mutate repository files.
 
-Plan writes one artifact:
+## Quality Bar
 
-```text
-.agent-work/plans/<slug>/plan.md
-```
+Drafts should explain the approach, name supporting repo facts, separate confirmed decisions from recommended defaults, keep open questions limited to blockers, and mark optional optimization ideas as non-blocking.
 
-The slug is derived automatically from the task. If the path already exists, Plan chooses a safe suffix unless the user clearly asks to continue that existing draft.
+Final plans should be decision-complete enough for another engineer or agent to execute without hidden chat context. Checklist items should start with imperative verbs and include concrete validation commands, tests, manual checks, or review criteria.
 
-Every artifact uses a stable shell:
-
-- `Status: Draft` or `Status: Execution Plan`
-
-Plan does not create:
-
-- `draft.md`
-- `plan.json`
-- handoff JSON
-- state JSON
-- `.gitignore`
-
-Both humans and future agents should read the same Markdown file.
-
-## Adaptive Content
-
-Plan does not require fixed body headings. The agent should choose readable Markdown structure based on the task and preset.
-
-Draft content must cover requirement description, key decisions, suggestions or tradeoffs, open questions, and the confirmation gate.
-
-Execution plan content must cover goals and non-goals, confirmed decisions and assumptions, execution approach, validation, risks and rollback where relevant, open questions or `None`, and an intent drift check.
-
-## Development Notes
+## Validation
 
 Validate repository and skill packaging with:
 
@@ -153,6 +86,10 @@ Validate repository and skill packaging with:
 python3 scripts/validate.py
 ```
 
-If you use an external Codex skill validator, run it according to that validator's own installation path.
+Also run:
 
-When changing Plan, keep the core prompt in `SKILL.md`. Do not split workflow rules or artifact rules into extra files unless the prompt becomes too large to maintain safely.
+```bash
+git diff --check
+```
+
+If an external Codex skill validator is available, run it according to that validator's own installation path.

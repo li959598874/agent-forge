@@ -6,6 +6,8 @@ This project follows human-readable release notes. Version tags should be added 
 
 ## Unreleased
 
-- Reframe Agent Forge around explicit process budgets, adaptive defaults, and low-intrusion workflow assets.
+## 0.1.2 - 2026-05-09
+
+- Reframe Agent Forge around user-controlled, low-intrusion, composable multi-agent workflow orchestration.
 - Add open-source project health files, validation tooling, and GitHub issue and pull request templates.
-- Rename the planning skill to Plan and update the contract around preset process budgets and draft-to-plan artifacts.
+- Rename the planning skill to Plan and update the contract around draft-to-final local Markdown artifacts.

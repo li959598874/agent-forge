@@ -1,7 +1,7 @@
 {
   "name": "agent-forge",
-  "version": "0.1.1",
-  "description": "Codex workflow plugin for adaptive, low-intrusion planning and agent orchestration.",
+  "version": "0.1.2",
+  "description": "Codex workflow plugin for user-controlled, composable multi-agent orchestration.",
   "author": {
     "name": "liwb",
     "email": "959598874+li959598874@users.noreply.github.com",
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Forge",
-    "shortDescription": "Plan Codex work with explicit process controls.",
-    "longDescription": "Agent Forge provides Codex-compatible workflow assets for adaptive planning and lightweight agent orchestration. Its current Plan skill turns ambiguous software or workflow requests into draft-to-approved local Markdown execution plans with preset controls for exploration breadth, clarification depth, and read-only subagent use.",
+    "shortDescription": "Compose low-intrusion Codex workflow skills.",
+    "longDescription": "Agent Forge provides Codex-compatible workflow skills for user-controlled, low-intrusion, composable multi-agent orchestration. Its current Plan skill turns ambiguous software or workflow requests into a local draft plan, waits for user confirmation, then upgrades the same Markdown file to a final execution checklist.",
     "developerName": "Agent Forge maintainers",
     "category": "Productivity",
     "capabilities": [
@@ -30,10 +30,10 @@
     ],
     "websiteURL": "https://github.com/li959598874/agent-forge",
     "defaultPrompt": [
-      "$plan --low \"Plan this cleanup\"",
-      "$plan --medium \"Plan this feature\"",
-      "$plan --high \"Clarify this migration\"",
-      "$plan --max \"Create a deeply researched execution plan\""
+      "$plan \"Plan this cleanup\"",
+      "$plan \"Plan this feature before implementation\"",
+      "$plan \"Plan this migration and use official sources where needed\"",
+      "$plan \"Create a confirmed execution checklist for this release\""
     ],
     "brandColor": "#2563EB"
   }

@@ -6,7 +6,7 @@ Thanks for helping improve Agent Forge. This project is intentionally small: cha
 
 Useful contributions usually fit one of these categories:
 
-- Improve the `$ralplan` workflow contract or plan artifact quality.
+- Improve the `$plan` workflow contract or plan artifact quality.
 - Clarify public documentation in English and Chinese.
 - Add focused validation that protects plugin, marketplace, or skill packaging.
 - Propose new workflow assets with clear boundaries and low default ceremony.
@@ -26,13 +26,14 @@ If you use an external Codex skill validator, run it according to that validator
 
 ## Documentation Expectations
 
-Public behavior changes should update both `README.md` and `README.zh-CN.md` when relevant. Detailed RalPlan behavior should stay aligned across:
+Public behavior changes should update both `README.md` and `README.zh-CN.md` when relevant. Detailed Plan behavior should stay aligned across:
 
-- `docs/ralplan.md`
-- `docs/ralplan.zh-CN.md`
-- `skills/ralplan/SKILL.md`
-- `skills/ralplan/references/`
-- `skills/ralplan/assets/plan-template.md`
+- `docs/plan.md`
+- `docs/plan.zh-CN.md`
+- `skills/plan/SKILL.md`
+- `skills/plan/assets/draft-plan-template.md`
+- `skills/plan/assets/final-plan-template.md`
+- `skills/plan/agents/openai.yaml`
 
 Keep prose concise, professional, and implementation-oriented.
 
@@ -45,4 +46,4 @@ Before opening a pull request:
 3. Run the validation commands above.
 4. Include a summary, changed paths, validation performed, and user-facing behavior changes.
 
-Commit messages should be short and imperative, for example `Refine RalPlan process budget`.
+Commit messages should be short and imperative, for example `Refine Plan draft workflow`.

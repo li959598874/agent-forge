@@ -19,15 +19,17 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: process-budget
+    id: planning-impact
     attributes:
-      label: Expected process budget
-      description: Which Agent Forge budget does this primarily affect?
+      label: Planning impact
+      description: Which part of the Plan workflow does this primarily affect?
       options:
-        - tiny
-        - small
-        - medium
-        - large
+        - invocation
+        - environment grounding
+        - clarification
+        - draft artifact
+        - final checklist
+        - documentation
         - unclear
     validations:
       required: true
