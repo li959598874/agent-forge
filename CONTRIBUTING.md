@@ -24,6 +24,8 @@ git diff --check
 
 If you use an external Codex skill validator, run it according to that validator's own installation path.
 
+For local plugin development and debugging, follow `docs/local-plugin-development.md`. That workflow keeps the public GitHub marketplace manifest unchanged while syncing a local development copy into the Codex plugin cache.
+
 ## Documentation Expectations
 
 Public behavior changes should update both `README.md` and `README.zh-CN.md` when relevant. Detailed Plan behavior should stay aligned across:

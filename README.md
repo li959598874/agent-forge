@@ -126,6 +126,8 @@ Also run:
 git diff --check
 ```
 
+For local plugin development and debugging, use the cross-platform workflow in [docs/local-plugin-development.md](docs/local-plugin-development.md).
+
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening issues or pull requests. Public behavior changes should update both English and Chinese docs when applicable.

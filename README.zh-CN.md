@@ -126,6 +126,8 @@ python3 scripts/validate.py
 git diff --check
 ```
 
+本地插件开发和调试流程见 [docs/local-plugin-development.zh-CN.md](docs/local-plugin-development.zh-CN.md)。
+
 ## 贡献
 
 提交 issue 或 pull request 前，请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。影响公开行为的变更应同步更新英文和中文文档。
