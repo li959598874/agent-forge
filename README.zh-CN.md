@@ -24,9 +24,9 @@ Agent Forge 围绕四个约束构建：
 | 资产 | 作用 |
 | --- | --- |
 | `agent-forge` plugin | Agent Forge 工作流资产的 Codex 插件封装。 |
-| `$plan` skill | 澄清模糊任务，写入草案，并在确认后升级为 Markdown 执行计划。 |
+| `$write-plan` skill | 在开始实现之前创建决策完整的 Markdown 计划。 |
 
-Plan 是第一个工作流原语。后续新增资产应遵循同一合同：显式调用、默认低仪式感、能和其他 skills 清晰组合，并且不在请求范围外制造惊喜变更。
+Write Plan 是当前工作流原语。后续新增资产应遵循同一合同：显式调用、默认低仪式感、能和其他 skills 清晰组合，并且不在请求范围外制造惊喜变更。
 
 ## 安装
 
@@ -52,41 +52,41 @@ codex plugin marketplace add li959598874/agent-forge --ref <release-tag>
 
 ## 快速上手
 
-在兼容 Codex skill 的环境中显式调用 Plan：
+在兼容 Codex skill 的环境中显式调用 Write Plan：
 
 ```text
-$plan "Plan the authentication refactor"
+$write-plan "Plan the authentication refactor before editing files"
 ```
 
 自然语言约束是请求的一部分：
 
 ```text
-$plan "Plan the logging cleanup. Keep the first draft concise."
+$write-plan "Plan the logging cleanup. Keep compatibility risks visible."
 ```
 
-范围较宽的工作可以直接在任务文本中要求更深入的只读探索：
+范围较宽的工作可以直接在任务文本中说明需要的规划深度：
 
 ```text
-$plan "Plan the plugin release process. Use read-only subagents if the repository scope is broad."
+$write-plan "Create a decision-complete plan for the plugin release process. Inspect local docs and manifests first."
 ```
 
-Plan 会先写入草案，再在用户确认后升级同一份文件：
+Write Plan 会保存一份本地 Markdown 产物：
 
 ```text
-.agent-work/<yyyyMMdd-HHmm>-<task-slug>.plan.md
+.agent-work/plan-<short-slug>.md
 ```
 
 ## 工作流
 
-Plan 遵循带确认门的流程：
+Write Plan 将规划和实现分开：
 
 1. 以非变更方式探索本地环境。
-2. 只询问无法通过检查回答、且会改变计划的问题。
-3. 保存 `status: "draft"` 的草案。
-4. 等待用户确认或修订。
-5. 用最终 checklist 替换同一份文件，并设置 `status: "final"`。
+2. 只询问会改变计划、确认重要假设，或在真实取舍之间做选择的问题。
+3. 把实现形态说明到另一个工程师或 agent 可以执行的程度。
+4. 保存决策完整的 Markdown 计划。
+5. 简短回复计划路径和必要注意事项。
 
-完整 Plan 说明见 [docs/plan.zh-CN.md](docs/plan.zh-CN.md)。设计原则见 [docs/design-principles.zh-CN.md](docs/design-principles.zh-CN.md)。
+完整 Write Plan 说明见 [docs/write-plan.zh-CN.md](docs/write-plan.zh-CN.md)。设计原则见 [docs/design-principles.zh-CN.md](docs/design-principles.zh-CN.md)。
 
 ## 仓库结构
 
@@ -102,12 +102,12 @@ Plan 遵循带确认门的流程：
 docs/
   design-principles.md      # 工作流理念和防漂移约束
   design-principles.zh-CN.md
-  plan.md                   # Plan 英文说明
-  plan.zh-CN.md             # Plan 中文说明
+  write-plan.md             # Write Plan 英文说明
+  write-plan.zh-CN.md       # Write Plan 中文说明
 scripts/
   validate.py               # 仓库本地校验
 skills/
-  plan/                     # Plan 工作流 skill
+  write-plan/               # Write Plan 工作流 skill
 ```
 
 ## 开发

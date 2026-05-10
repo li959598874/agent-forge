@@ -19,16 +19,16 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: planning-impact
+    id: write-plan-impact
     attributes:
-      label: Planning impact
-      description: Which part of the Plan workflow does this primarily affect?
+      label: Write Plan impact
+      description: Which part of the Write Plan workflow does this primarily affect?
       options:
         - invocation
         - environment grounding
-        - clarification
-        - draft artifact
-        - final checklist
+        - intent clarification
+        - implementation specification
+        - plan artifact
         - documentation
         - unclear
     validations:

@@ -1,6 +1,6 @@
 {
   "name": "agent-forge",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Codex workflow plugin for user-controlled, composable multi-agent orchestration.",
   "author": {
     "name": "liwb",
@@ -15,13 +15,14 @@
     "workflow",
     "planning",
     "agents",
-    "plan"
+    "plan",
+    "write-plan"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Forge",
     "shortDescription": "Compose low-intrusion Codex workflow skills.",
-    "longDescription": "Agent Forge provides Codex-compatible workflow skills for user-controlled, low-intrusion, composable multi-agent orchestration. Its current Plan skill turns ambiguous software or workflow requests into a local draft plan, waits for user confirmation, then upgrades the same Markdown file to a final execution checklist.",
+    "longDescription": "Agent Forge provides Codex-compatible workflow skills for user-controlled, low-intrusion, composable multi-agent orchestration. Its current Write Plan skill turns explicit planning requests into decision-complete local Markdown plans before execution, using non-mutating exploration and plan-changing questions to keep implementation choices clear.",
     "developerName": "Agent Forge maintainers",
     "category": "Productivity",
     "capabilities": [
@@ -30,10 +31,10 @@
     ],
     "websiteURL": "https://github.com/li959598874/agent-forge",
     "defaultPrompt": [
-      "$plan \"Plan this cleanup\"",
-      "$plan \"Plan this feature before implementation\"",
-      "$plan \"Plan this migration and use official sources where needed\"",
-      "$plan \"Create a confirmed execution checklist for this release\""
+      "$write-plan \"Plan this cleanup before editing files\"",
+      "$write-plan \"Create a decision-complete plan for this feature\"",
+      "$write-plan \"Plan this migration and use official sources where needed\"",
+      "$write-plan \"Write an implementation plan for this release\""
     ],
     "brandColor": "#2563EB"
   }

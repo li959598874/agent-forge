@@ -71,7 +71,7 @@ python scripts\sync_local_plugin.py
 Open a new Codex session or restart Codex, then test the local skill:
 
 ```text
-$plan "Test the local Plan skill"
+$write-plan "Test the local Write Plan skill"
 ```
 
 Current sessions usually do not reload the available skill list or skill file contents.
@@ -96,16 +96,16 @@ The script copies this repository to two local Codex-controlled locations:
 
 The first path lets the local marketplace resolve a valid plugin source. The second path is where Codex reads the installed plugin. The cache copy is intentional because current Codex builds load plugin skills from cache and do not hot-reload files from the repository checkout.
 
-When the plugin loads, `skills/plan/SKILL.md` becomes available as:
+When the plugin loads, `skills/write-plan/SKILL.md` becomes available as:
 
 ```text
-agent-forge:plan
+agent-forge:write-plan
 ```
 
 You can inspect the model-visible skill list with:
 
 ```bash
-codex debug prompt-input '$plan "test"'
+codex debug prompt-input '$write-plan "test"'
 ```
 
 ## Updating Versions

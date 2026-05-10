@@ -76,11 +76,11 @@ def check_required_files() -> None:
         ".github/workflows/validate.yml",
         "docs/design-principles.md",
         "docs/design-principles.zh-CN.md",
-        "docs/plan.md",
-        "docs/plan.zh-CN.md",
+        "docs/write-plan.md",
+        "docs/write-plan.zh-CN.md",
         "scripts/validate.py",
-        "skills/plan/SKILL.md",
-        "skills/plan/agents/openai.yaml",
+        "skills/write-plan/SKILL.md",
+        "skills/write-plan/agents/openai.yaml",
     ]
     for path in required:
         require_file(path)
@@ -101,11 +101,11 @@ def check_manifests() -> None:
         if not repository.startswith("https://github.com/"):
             ERRORS.append(".codex-plugin/plugin.json repository should be a GitHub HTTPS URL")
         prompts = plugin.get("interface", {}).get("defaultPrompt", [])
-        if not any(str(prompt).startswith("$plan ") for prompt in prompts):
-            ERRORS.append("plugin default prompts should include a Plan invocation example")
+        if not any(str(prompt).startswith("$write-plan ") for prompt in prompts):
+            ERRORS.append("plugin default prompts should include a Write Plan invocation example")
         legacy_prompt_flags = ("--low", "--medium", "--high", "--max")
         if any(any(flag in str(prompt) for flag in legacy_prompt_flags) for prompt in prompts):
-            ERRORS.append("plugin default prompts should not expose legacy Plan preset flags")
+            ERRORS.append("plugin default prompts should not expose legacy planning preset flags")
 
     marketplace = load_json(".agents/plugins/marketplace.json")
     plugins = marketplace.get("plugins", []) if marketplace else []
@@ -133,56 +133,41 @@ def check_manifests() -> None:
 
 
 def check_skill_contract() -> None:
-    skill = read_text("skills/plan/SKILL.md")
+    skill = read_text("skills/write-plan/SKILL.md")
     if not skill.startswith("---\n"):
-        ERRORS.append("skills/plan/SKILL.md must start with YAML frontmatter")
+        ERRORS.append("skills/write-plan/SKILL.md must start with YAML frontmatter")
     else:
         parts = skill.split("---", 2)
         frontmatter = parts[1] if len(parts) > 2 else ""
-        for field in ("name: plan", "description:"):
+        for field in ("name: write-plan", "description:"):
             if field not in frontmatter:
-                ERRORS.append(f"skills/plan/SKILL.md missing frontmatter field {field}")
-        if "decision-ready local implementation checklist" not in frontmatter:
-            ERRORS.append("Plan description should mention the local implementation checklist")
+                ERRORS.append(f"skills/write-plan/SKILL.md missing frontmatter field {field}")
+        if "decision-complete Markdown plans before execution" not in frontmatter:
+            ERRORS.append("Write Plan description should mention decision-complete Markdown plans before execution")
     required_skill_markers = [
         "## Purpose",
-        "## File Rules",
+        "## Constraints",
         "## Workflow",
-        "## Asking Questions",
-        "## Subagent Rules",
-        "## Draft Quality Bar",
-        "## Final Quality Bar",
-        "## External Research",
-        "## Templates",
-        "Store plans in `.agent-work/` unless the user provides a directory.",
-        "Name files `<yyyyMMdd-HHmm>-<task-slug>.plan.md`",
-        "upgrade `status: draft` to `status: final`",
-        "assets/draft-plan-template.md",
-        "assets/final-plan-template.md",
-        "prefer the latest fast, inexpensive model available in the current environment",
-        "Do not duplicate the full local plan in chat unless requested.",
+        "## Asking questions",
+        "## Two kinds of unknowns",
+        "## Plan Artifact",
+        "## Final Response",
+        "Except for creating or updating the final plan artifact, do not perform mutating actions.",
+        "Before writing, check whether a relevant local plan already exists.",
+        ".agent-work/plan-<short-slug>.md",
+        "## Test Plan",
         "decision-complete",
     ]
     for marker in required_skill_markers:
         if marker not in skill:
-            ERRORS.append(f"Plan skill missing prompt marker: {marker}")
+            ERRORS.append(f"Write Plan skill missing prompt marker: {marker}")
 
-    for path in (
-        "skills/plan/assets/draft-plan-template.md",
-        "skills/plan/assets/final-plan-template.md",
-    ):
-        require_file(path)
-    draft_template = read_text("skills/plan/assets/draft-plan-template.md")
-    final_template = read_text("skills/plan/assets/final-plan-template.md")
-    if 'status: "draft"' not in draft_template:
-        ERRORS.append("draft Plan template should set status: draft")
-    if 'status: "final"' not in final_template:
-        ERRORS.append("final Plan template should set status: final")
-
-    openai_yaml = read_text("skills/plan/agents/openai.yaml")
+    openai_yaml = read_text("skills/write-plan/agents/openai.yaml")
     for expected in ("display_name:", "short_description:", "default_prompt:"):
         if expected not in openai_yaml:
-            ERRORS.append(f"skills/plan/agents/openai.yaml missing {expected}")
+            ERRORS.append(f"skills/write-plan/agents/openai.yaml missing {expected}")
+    if "$write-plan" not in openai_yaml:
+        ERRORS.append("skills/write-plan/agents/openai.yaml should expose a $write-plan default prompt")
 
 
 def check_docs() -> None:
@@ -199,7 +184,7 @@ def check_docs() -> None:
     readme = read_text("README.md")
     readme_zh = read_text("README.zh-CN.md")
     for text, path in ((readme, "README.md"), (readme_zh, "README.zh-CN.md")):
-        for token in ("$plan", "docs/plan", "docs/design-principles", "CONTRIBUTING.md", "LICENSE"):
+        for token in ("$write-plan", "docs/write-plan", "docs/design-principles", "CONTRIBUTING.md", "LICENSE"):
             if token not in text:
                 ERRORS.append(f"{path} missing expected reference: {token}")
         if "--ref v0.1.0" in text:
@@ -213,9 +198,15 @@ def check_docs() -> None:
         "--medium",
         "--high",
         "--max",
+        "$plan",
+        "skills/plan",
+        "docs/plan",
+        "agent-forge:plan",
         ".agent-work/plans/<slug>/plan.md",
         "Status: Draft",
         "Status: Execution Plan",
+        "status: \"draft\"",
+        "status: \"final\"",
     )
     docs_to_check = [
         "README.md",
@@ -224,10 +215,12 @@ def check_docs() -> None:
         "TODO.md",
         "TODO.zh-CN.md",
         "AGENTS.md",
-        "docs/plan.md",
-        "docs/plan.zh-CN.md",
+        "docs/write-plan.md",
+        "docs/write-plan.zh-CN.md",
         "docs/design-principles.md",
         "docs/design-principles.zh-CN.md",
+        "docs/local-plugin-development.md",
+        "docs/local-plugin-development.zh-CN.md",
         ".codex-plugin/plugin.json",
     ]
     for path in docs_to_check:

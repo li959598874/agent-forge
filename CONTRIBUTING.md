@@ -6,7 +6,7 @@ Thanks for helping improve Agent Forge. This project is intentionally small: cha
 
 Useful contributions usually fit one of these categories:
 
-- Improve the `$plan` workflow contract or plan artifact quality.
+- Improve the `$write-plan` workflow contract or plan artifact quality.
 - Clarify public documentation in English and Chinese.
 - Add focused validation that protects plugin, marketplace, or skill packaging.
 - Propose new workflow assets with clear boundaries and low default ceremony.
@@ -28,14 +28,12 @@ For local plugin development and debugging, follow `docs/local-plugin-developmen
 
 ## Documentation Expectations
 
-Public behavior changes should update both `README.md` and `README.zh-CN.md` when relevant. Detailed Plan behavior should stay aligned across:
+Public behavior changes should update both `README.md` and `README.zh-CN.md` when relevant. Detailed Write Plan behavior should stay aligned across:
 
-- `docs/plan.md`
-- `docs/plan.zh-CN.md`
-- `skills/plan/SKILL.md`
-- `skills/plan/assets/draft-plan-template.md`
-- `skills/plan/assets/final-plan-template.md`
-- `skills/plan/agents/openai.yaml`
+- `docs/write-plan.md`
+- `docs/write-plan.zh-CN.md`
+- `skills/write-plan/SKILL.md`
+- `skills/write-plan/agents/openai.yaml`
 
 Keep prose concise, professional, and implementation-oriented.
 
@@ -48,4 +46,4 @@ Before opening a pull request:
 3. Run the validation commands above.
 4. Include a summary, changed paths, validation performed, and user-facing behavior changes.
 
-Commit messages should be short and imperative, for example `Refine Plan draft workflow`.
+Commit messages should be short and imperative, for example `Refine Write Plan workflow`.

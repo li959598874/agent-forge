@@ -18,7 +18,7 @@ The project optimizes for:
 
 Agent Forge assets should be easy to adopt and easy to stop using:
 
-- Prefer explicit commands such as `$plan` over implicit interception.
+- Prefer explicit commands such as `$write-plan` over implicit interception.
 - Keep outputs in predictable local paths.
 - Keep machine-specific state out of public docs, manifests, and generated artifacts.
 - Let skills compose through clear artifacts and documented behavior rather than private side channels.
@@ -27,7 +27,7 @@ Agent Forge assets should be easy to adopt and easy to stop using:
 
 ## Current Primitive
 
-Plan is the first workflow primitive. It explores the environment, clarifies decisions, writes a draft plan, waits for confirmation, and upgrades the same Markdown file to a final execution checklist. It is planning-only by default and uses subagents only as read-only planning lanes.
+Write Plan is the current workflow primitive. It explores the environment, clarifies intent and implementation decisions, and writes a decision-complete local Markdown plan before execution starts. It is planning-only by default: apart from the plan artifact, it does not mutate repo-tracked state.
 
 ## Roadmap
 

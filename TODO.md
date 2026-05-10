@@ -5,7 +5,7 @@
 ## Plugin Setup And Usage Guidance
 
 - [ ] Create a skill for Agent Forge setup, installation checks, and first-use guidance.
-- [ ] Cover fresh install, marketplace update, installed-skill discovery, and choosing when to use `$plan`.
+- [ ] Cover fresh install, marketplace update, installed-skill discovery, and choosing when to use `$write-plan`.
 - [ ] Keep the skill inspect-first and low-intrusion.
 - [ ] Add English and Chinese user docs.
 - [ ] Add validation coverage for the skill package and metadata.

@@ -71,7 +71,7 @@ python scripts\sync_local_plugin.py
 然后打开新的 Codex 会话或重启 Codex，再测试本地 skill：
 
 ```text
-$plan "Test the local Plan skill"
+$write-plan "Test the local Write Plan skill"
 ```
 
 当前已打开的会话通常不会重新加载可用 skill 列表或 skill 文件内容。
@@ -96,16 +96,16 @@ $plan "Test the local Plan skill"
 
 第一个路径让本地 marketplace 能解析出合法插件来源。第二个路径是 Codex 实际读取已安装插件的位置。复制到缓存是有意为之，因为当前 Codex 构建会从插件缓存加载 skill，不会直接热加载仓库工作区里的文件。
 
-插件加载后，`skills/plan/SKILL.md` 会作为下面的 skill 出现：
+插件加载后，`skills/write-plan/SKILL.md` 会作为下面的 skill 出现：
 
 ```text
-agent-forge:plan
+agent-forge:write-plan
 ```
 
 可以用下面的命令查看模型可见的 skill 列表：
 
 ```bash
-codex debug prompt-input '$plan "test"'
+codex debug prompt-input '$write-plan "test"'
 ```
 
 ## 更新版本

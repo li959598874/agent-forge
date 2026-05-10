@@ -35,5 +35,5 @@ body:
     id: logs
     attributes:
       label: Relevant output
-      description: Logs, validation output, screenshots, or plan excerpts.
+      description: Logs, validation output, screenshots, or Write Plan excerpts.
       render: text

@@ -24,9 +24,9 @@ This repository currently publishes one plugin and one skill:
 | Asset | Purpose |
 | --- | --- |
 | `agent-forge` plugin | Codex plugin wrapper for Agent Forge workflow assets. |
-| `$plan` skill | Clarifies ambiguous tasks, writes a draft, and upgrades it to an approved Markdown execution plan. |
+| `$write-plan` skill | Creates decision-complete Markdown plans before implementation starts. |
 
-Plan is the first workflow primitive. Future workflow assets should follow the same contract: explicit invocation, low default ceremony, clean composition with other skills, and no surprise changes outside the requested scope.
+Write Plan is the current workflow primitive. Future workflow assets should follow the same contract: explicit invocation, low default ceremony, clean composition with other skills, and no surprise changes outside the requested scope.
 
 ## Install
 
@@ -52,41 +52,41 @@ codex plugin marketplace add li959598874/agent-forge --ref <release-tag>
 
 ## Quick Start
 
-Invoke Plan explicitly in Codex-compatible environments:
+Invoke Write Plan explicitly in Codex-compatible environments:
 
 ```text
-$plan "Plan the authentication refactor"
+$write-plan "Plan the authentication refactor before editing files"
 ```
 
 Natural-language constraints are part of the request:
 
 ```text
-$plan "Plan the logging cleanup. Keep the first draft concise."
+$write-plan "Plan the logging cleanup. Keep compatibility risks visible."
 ```
 
-For broader work, ask for deeper read-only exploration in the task text:
+For broader work, ask for the necessary planning depth in the task text:
 
 ```text
-$plan "Plan the plugin release process. Use read-only subagents if the repository scope is broad."
+$write-plan "Create a decision-complete plan for the plugin release process. Inspect local docs and manifests first."
 ```
 
-Plan writes a draft first, then upgrades the same file after user approval:
+Write Plan saves one local Markdown artifact:
 
 ```text
-.agent-work/<yyyyMMdd-HHmm>-<task-slug>.plan.md
+.agent-work/plan-<short-slug>.md
 ```
 
 ## Workflow
 
-Plan follows a confirmation-gated flow:
+Write Plan keeps planning separate from implementation:
 
 1. Explore the local environment without mutating source files.
-2. Ask only plan-changing questions that inspection cannot answer.
-3. Save a draft with `status: "draft"`.
-4. Wait for user confirmation or revision.
-5. Replace the same file with a final checklist and `status: "final"`.
+2. Ask only questions that change the plan, confirm important assumptions, or choose between real tradeoffs.
+3. Specify the implementation shape clearly enough for another engineer or agent to execute.
+4. Save a decision-complete Markdown plan.
+5. Reply briefly with the plan path and any essential caveat.
 
-Read the complete Plan guide in [docs/plan.md](docs/plan.md). The design principles are documented in [docs/design-principles.md](docs/design-principles.md).
+Read the complete Write Plan guide in [docs/write-plan.md](docs/write-plan.md). The design principles are documented in [docs/design-principles.md](docs/design-principles.md).
 
 ## Repository Layout
 
@@ -102,12 +102,12 @@ Read the complete Plan guide in [docs/plan.md](docs/plan.md). The design princip
 docs/
   design-principles.md      # Workflow philosophy and guardrails
   design-principles.zh-CN.md
-  plan.md                   # English Plan guide
-  plan.zh-CN.md             # Chinese Plan guide
+  write-plan.md             # English Write Plan guide
+  write-plan.zh-CN.md       # Chinese Write Plan guide
 scripts/
   validate.py               # Repo-local validation checks
 skills/
-  plan/                     # Plan workflow skill
+  write-plan/               # Write Plan workflow skill
 ```
 
 ## Development

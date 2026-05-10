@@ -5,7 +5,7 @@
 ## 插件安装与使用指引
 
 - [ ] 创建用于 Agent Forge 安装、安装检查和首次使用指引的 skill。
-- [ ] 覆盖全新安装、marketplace 更新、已安装 skill 发现，以及何时使用 `$plan`。
+- [ ] 覆盖全新安装、marketplace 更新、已安装 skill 发现，以及何时使用 `$write-plan`。
 - [ ] 保持先检查再建议，避免侵入式配置变更。
 - [ ] 补充英文和中文用户文档。
 - [ ] 为 skill 包装和 metadata 增加校验覆盖。
