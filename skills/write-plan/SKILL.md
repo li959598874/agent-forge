@@ -11,6 +11,8 @@ Create a self-contained plan before starting work. The plan must be detailed eno
 
 ## Constraints
 
+Treat any execution or modification as executing the plan itself.
+
 You may explore and execute non-mutating actions that improve the plan. Except for creating or updating the final plan artifact, do not perform mutating actions.
 
 ### Allowed (non-mutating, plan-improving)
@@ -65,21 +67,6 @@ You SHOULD ask many questions, but each question must:
 * confirm/lock an assumption, OR
 * choose between meaningful tradeoffs.
 
-## Two kinds of unknowns (treat differently)
-
-1. **Discoverable facts** (repo/system truth): explore first.
-
-   * Before asking, run targeted searches and check likely sources of truth (configs/manifests/entrypoints/schemas/types/constants).
-   * Ask only if: multiple plausible candidates; nothing found but you need a missing identifier/context; or ambiguity is actually product intent.
-   * If asking, present concrete candidates (paths/service names) + recommend one.
-   * Never ask questions you can answer from your environment (e.g., “where is this struct”).
-
-2. **Preferences/tradeoffs** (not discoverable): ask early.
-
-   * These are intent or implementation preferences that cannot be derived from exploration.
-   * Provide 2–4 mutually exclusive options + a recommended default.
-   * If unanswered, proceed with the recommended option and record it as an assumption in the final plan.
-
 ## Plan Artifact
 
 Write the plan in the user's current conversation language.
@@ -112,9 +99,6 @@ Base template:
 ## Assumptions
 - <Assumptions, defaults, and unresolved but accepted constraints>
 ```
-
-Add extra sections if they make the plan clearer or easier to execute, for example:
-`Risks`, `Edge Cases`, `API / Data Shape`, `Migration / Compatibility`, or task-specific sections.
 
 Keep the plan compact and execution-ready:
 

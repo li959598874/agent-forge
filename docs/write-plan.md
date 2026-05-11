@@ -2,7 +2,7 @@
 
 Write Plan creates a decision-complete Markdown plan before implementation starts. It is an explicit planning workflow: the user asks for a plan, the agent grounds itself in the available environment, resolves intent and implementation decisions, then writes a local plan artifact that another engineer or agent can execute without hidden chat context.
 
-Use it when a task is broad, ambiguous, risky, cross-cutting, or needs agreement before source files change. Skip it for small direct edits, quick answers, or work the user has already asked you to implement immediately.
+Use it when a task is broad, ambiguous, risky, cross-cutting, or needs agreement before source files change. Skip invoking it for small direct edits, quick answers, or work the user has already asked you to implement immediately.
 
 ## Invocation
 
@@ -57,7 +57,7 @@ Default path:
 
 Choose a short lowercase hyphenated slug from the work, such as `auth-timeout`, `checkout-copy`, or `dash-counter`.
 
-Use this base shape unless the task needs extra sections:
+Use this base shape:
 
 ```markdown
 # <Clear Title>
@@ -76,9 +76,8 @@ Use this base shape unless the task needs extra sections:
 - <Assumptions, defaults, and unresolved but accepted constraints>
 ```
 
-Optional sections such as `Risks`, `Edge Cases`, `API / Data Shape`, or `Migration / Compatibility` are useful when they prevent execution mistakes. Keep the plan compact and execution-ready: group by behavior, name exact paths or symbols only when needed, and avoid inventing policy that the user did not request.
+Keep the plan compact and execution-ready: group by behavior, name exact paths or symbols only when needed, and avoid inventing policy that the user did not request.
 
 ## Composition
 
 Write Plan is an upstream workflow primitive. It produces a durable local plan that a human, the base agent, or another workflow skill can execute later. Other skills should treat the plan as context, not as permission to make changes outside the user's request.
-

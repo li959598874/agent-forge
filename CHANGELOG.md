@@ -6,6 +6,10 @@ This project follows human-readable release notes. Version tags should be added 
 
 ## Unreleased
 
+## 0.1.4 - 2026-05-11
+
+- Tighten the Write Plan mutation boundary and align validation with the leaner skill prompt structure.
+
 ## 0.1.3 - 2026-05-11
 
 - Replace the Plan skill package with Write Plan and align public docs, manifests, local development notes, and validation around the new planning contract.

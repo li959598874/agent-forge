@@ -1,6 +1,6 @@
 {
   "name": "agent-forge",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Codex workflow plugin for user-controlled, composable multi-agent orchestration.",
   "author": {
     "name": "liwb",
